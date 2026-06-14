@@ -141,7 +141,12 @@ export default function Footer() {
         </p>
         <p className="mt-1 text-xs">
           Desenvolvido por:{" "}
-          <a href="#" className="font-semibold underline">
+          <a
+            href="https://onchannel.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold underline"
+          >
             On Channel
           </a>
         </p>

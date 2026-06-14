@@ -265,6 +265,23 @@ export const homeBrands: HomeBrand[] = [
   { name: "Forneria Massas", image: "/img/home/carrosel-marcas/forneria-massas-V2.png", href: "/nossas-marcas" },
 ];
 
+// ---- Home: "Satisfação de quem comprou" testimonials ----
+
+export type Testimonial = {
+  name: string;
+  text: string;
+};
+
+export const testimonials: Testimonial[] = [
+  { name: "Flávio", text: "A pizza é fenomenal. melhor ainda é o carinho pelo chat quando precisa de alguma atenção. sou fã de carteirinha." },
+  { name: "Gabriel", text: "P* P, a pizza mais gostosa que já comi, sem exagero nenhum, fora que não deu tempo nem de aperta aquele e já chegou.. amei" },
+  { name: "Filipe", text: "A verdadeira experiência 5 estrelas, que vai além da pizza que é deliciosa. A entrega é a mais rápida que ja vi. Já pedi algumas vezes e agora a brincadeira em casa é cronometrar, porque é realmente impressionante. Chega sempre em menos de 15 minutos e bem quentinha. Recomendo. Virei cliente fiel." },
+  { name: "Fabiana", text: "Merece não apenas cinco estrelas, e sim muito mais! Pizza super bem preparada, muito recheio, massa leve, entrega rápida... perfeita demais! Até o entregador é bom kkk super cuidadoso e gente boa!" },
+  { name: "Filipe", text: "Simplesmente magnífico, pizzaria com mentalidade de satisfação ao cliente, pizza maravilhosa, feita e entregue em 30 minutos, quente e extremante saborosa" },
+  { name: "Luana", text: "Chega muuuito rápido!! Hoje chegou em 10min kkkk foi só O tempo de botar a mesa. Deliciosa, como sempre! Recomendo." },
+  { name: "Alicia", text: "Gente, que pizza incrível!! Veio tão quentinha e saborosa estou apaixonada e pedirei mais vezes!" },
+];
+
 // ---- Home banners ----
 
 export type Banner = {

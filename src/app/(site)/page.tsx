@@ -5,6 +5,7 @@ import AppDownloadSection from "@/components/AppDownloadSection";
 import WeeklySuggestion from "@/components/WeeklySuggestion";
 import FranchiseVideo from "@/components/FranchiseVideo";
 import MostOrdered from "@/components/MostOrdered";
+import Testimonials from "@/components/Testimonials";
 import HomeNews from "@/components/HomeNews";
 import { getBanners } from "@/lib/queries";
 
@@ -21,6 +22,7 @@ export default async function HomePage() {
       <WeeklySuggestion />
       <FranchiseVideo />
       <MostOrdered />
+      <Testimonials />
       <HomeNews />
 
       {/* Call to action */}
