@@ -1,14 +1,20 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Refreshes the Supabase session and protects /admin routes.
+// Protects /admin routes. Resilient: if Supabase env is unavailable in the
+// Edge runtime, it skips the check (the /admin layout still gates server-side)
+// instead of crashing with MIDDLEWARE_INVOCATION_FAILED.
 export async function middleware(request: NextRequest) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  try {
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -21,23 +27,25 @@ export async function middleware(request: NextRequest) {
           );
         },
       },
-    },
-  );
+    });
 
-  const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
+    const { pathname } = request.nextUrl;
+    const isLogin = pathname === "/admin/login";
 
-  const { pathname } = request.nextUrl;
-  const isLogin = pathname === "/admin/login";
-
-  if (!user && pathname.startsWith("/admin") && !isLogin) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin/login";
-    return NextResponse.redirect(url);
-  }
-  if (user && isLogin) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/admin";
-    return NextResponse.redirect(url);
+    if (!user && pathname.startsWith("/admin") && !isLogin) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/admin/login";
+      return NextResponse.redirect(redirectUrl);
+    }
+    if (user && isLogin) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/admin";
+      return NextResponse.redirect(redirectUrl);
+    }
+  } catch {
+    // Never break the app from middleware — the admin layout enforces auth.
+    return NextResponse.next();
   }
 
   return response;
