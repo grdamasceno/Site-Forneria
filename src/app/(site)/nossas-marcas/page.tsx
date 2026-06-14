@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Nossas Marcas — Forneria Original",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function NossasMarcasPage() {
   const brands = await getBrands();

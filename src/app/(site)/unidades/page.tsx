@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Nossas Unidades — Forneria Original",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function UnidadesPage() {
   const units = await getUnits();

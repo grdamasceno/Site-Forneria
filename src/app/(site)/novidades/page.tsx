@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Novidades — Forneria Original",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function NovidadesPage() {
   const posts = await getPosts();
@@ -28,6 +28,11 @@ export default async function NovidadesPage() {
           <span className="text-forneria-red">Novidades</span>
         </nav>
 
+        {!featured ? (
+          <p className="py-16 text-center text-forneria-black/50">
+            Nenhuma novidade publicada no momento.
+          </p>
+        ) : (
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px]">
           {/* Main post + list */}
           <div className="space-y-12">
@@ -102,6 +107,7 @@ export default async function NovidadesPage() {
             </div>
           </aside>
         </div>
+        )}
       </div>
     </>
   );

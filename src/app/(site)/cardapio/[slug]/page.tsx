@@ -3,11 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Nutrition, ProductCategory } from "@/lib/data";
-import { getProductBySlug, getProducts } from "@/lib/queries";
+import { getProductBySlug } from "@/lib/queries";
 
 type Params = { params: Promise<{ slug: string }> };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const CATEGORY_LABEL: Record<ProductCategory, string> = {
   vegana: "Vegana",
@@ -15,11 +15,6 @@ const CATEGORY_LABEL: Record<ProductCategory, string> = {
   "pizza-salgada": "Pizza Salgada",
   fornerito: "Fornerito",
 };
-
-export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((p) => ({ slug: p.slug ?? "" }));
-}
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;

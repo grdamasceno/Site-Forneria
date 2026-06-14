@@ -7,12 +7,7 @@ import { getPostBySlug, getPosts } from "@/lib/queries";
 
 type Params = { params: Promise<{ slug: string }> };
 
-export const revalidate = 60;
-
-export async function generateStaticParams() {
-  const posts = await getPosts();
-  return posts.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;

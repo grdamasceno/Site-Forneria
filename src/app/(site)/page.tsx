@@ -8,7 +8,7 @@ import MostOrdered from "@/components/MostOrdered";
 import HomeNews from "@/components/HomeNews";
 import { getBanners } from "@/lib/queries";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const banners = await getBanners();

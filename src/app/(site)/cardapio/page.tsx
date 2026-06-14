@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: "Cardápio — Forneria Original",
 };
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const FILTERS: { key: ProductCategory | "todos"; label: string }[] = [
   { key: "todos", label: "Todos" },
