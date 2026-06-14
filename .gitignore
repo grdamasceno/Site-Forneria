@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# material de origem (export do site antigo — não necessário para o app/deploy)
+/cssSiteAntigo
+scripts/_csv-names.json

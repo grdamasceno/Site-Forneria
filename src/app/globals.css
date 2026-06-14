@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --forneria-red: #df1b2d;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: #333333;
+  background: #ffffff;
+}
+
+/* Headings use the heading (Gotham-substitute) font, like the original site */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-heading), var(--font-roboto), sans-serif;
+}
+
+@layer components {
+  /* Inner-page banner title: white with the original reddish shadow (#c92e2e) */
+  .hero-title {
+    @apply text-4xl font-extrabold uppercase tracking-wide text-white md:text-5xl;
+    text-shadow: 3px 5px 4px #c92e2e;
+  }
+
+  .container-fc {
+    @apply mx-auto w-full max-w-container px-4 sm:px-6 lg:px-8;
+  }
+
+  .nav-link {
+    @apply text-sm font-semibold text-forneria-black/80 transition-colors hover:text-forneria-red;
+  }
+
+  /* Brand gradients reproduced from the original CSS */
+  .bg-grad-top {
+    background-color: #c50c0c;
+    background-image: linear-gradient(62deg, #892626 0%, #e93232 100%);
+  }
+  .bg-grad-dark {
+    background-color: #8e0c19;
+    background-image: linear-gradient(147deg, #7e0707 0%, #c30d0d 74%);
+  }
+  .bg-grad-app {
+    background-color: #8e0c19;
+    background-image: linear-gradient(147deg, #7e0707 0%, #a60000 74%);
+  }
+}
+
+/* Gentle up/down floating used by the loyalty reward cards */
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+.animate-float {
+  animation: floatY 3s ease-in-out infinite;
+}
+
+/* Continuous marquee loop (home brands carousel). The track holds two copies
+   of the list, so translating -50% loops seamlessly. */
+@keyframes marqueeX {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marqueeX 28s linear infinite;
+}
+.marquee-pause:hover .animate-marquee {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* Pulsing heart (fornelover) */
+@keyframes heartPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+.animate-heart {
+  animation: heartPulse 1.2s ease-in-out infinite;
+}
+
+/* Hide scrollbar but keep horizontal scroll (used by the brands carousel) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Floating delivery button (#bolinha) ---- */
+:root {
+  --bolinha-laranja: #ec8749;
+  --bolinha-amarelo: #ffd24a;
+}
+
+/* fixa a bolinha no canto, por cima de tudo */
+#bolinha {
+  position: fixed !important;
+  right: 24px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); /* respeita notch/iPhone */
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease;
+  pointer-events: auto; /* garante clique */
+  padding: 10px; /* respiro interno: o ícone não encosta na borda */
+  box-sizing: border-box;
+  background: var(--bolinha-laranja);
+  /* pisca cor + brilho suave, em loop */
+  animation: bolinhaBlink 1.4s ease-in-out infinite,
+    bolinhaGlow 1.4s ease-in-out infinite;
+}
+
+/* se tiver um ícone dentro, ele se ajusta sem distorcer */
+#bolinha img,
+#bolinha svg {
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+}
+
+/* transição de cor */
+@keyframes bolinhaBlink {
+  0%,
+  100% {
+    background-color: var(--bolinha-laranja);
+  }
+  50% {
+    background-color: var(--bolinha-amarelo);
+  }
+}
+
+/* "halo" de brilho que acompanha a troca de cor */
+@keyframes bolinhaGlow {
+  0%,
+  100% {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 0 0 0 rgba(255, 210, 70, 0);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 0 32px 6px rgba(255, 210, 70, 0.55);
+  }
+}
+
+/* pausa a animação no hover */
+#bolinha:hover {
+  animation-play-state: paused;
+  transform: scale(1.06);
+}
+
+/* mobile: um pouco menor e mais perto da borda */
+@media (max-width: 768px) {
+  #bolinha {
+    right: 16px;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+    width: 56px;
+    height: 56px;
+    padding: 10px;
+  }
+}
+
+/* acessibilidade: respeita quem prefere menos movimento */
+@media (prefers-reduced-motion: reduce) {
+  #bolinha {
+    animation: none;
+  }
+}
