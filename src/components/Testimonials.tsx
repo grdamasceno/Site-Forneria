@@ -54,18 +54,23 @@ export default function Testimonials() {
           <span className="hidden h-px flex-1 bg-forneria-red sm:block" />
         </div>
 
-        {/* Cards row */}
+        {/* Cards row — podium: center is tallest, then the neighbours, then
+            the outermost cards, all aligned along the bottom. */}
         <div
-          className="flex items-stretch justify-center gap-5"
+          className="flex items-end justify-center gap-5"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
           {window_.map(({ item, pos }) => {
             const highlight = pos === center;
+            const distance = Math.abs(pos - center);
+            // 0 = center (tallest), 1 = neighbour, 2 = outermost (shortest).
+            const heightByTier = ["min-h-[440px]", "min-h-[370px]", "min-h-[310px]"];
+            const tier = heightByTier[distance] ?? heightByTier[2];
             return (
               <article
                 key={`${start}-${pos}`}
-                className={`flex flex-1 animate-[fadeIn_0.6s_ease] flex-col items-center rounded-2xl px-6 py-8 text-center shadow-sm transition ${
+                className={`flex flex-1 animate-[fadeIn_0.6s_ease] flex-col items-center justify-center rounded-2xl px-6 py-8 text-center shadow-sm transition ${tier} ${
                   highlight
                     ? "bg-forneria-red text-white shadow-lg"
                     : "border border-forneria-red/30 bg-white text-forneria-black/80"
