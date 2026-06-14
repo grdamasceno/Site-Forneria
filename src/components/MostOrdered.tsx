@@ -1,15 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { productSlug } from "@/lib/data";
-import { getWeeklySuggestions } from "@/lib/queries";
+import { getMostOrdered } from "@/lib/queries";
 
 /**
  * Home "Mais Pedidos" section: light background, gray/red title with side lines
- * and gently rotating pizzas (products flagged "semana"), each linking to its
- * product page.
+ * and three fixed best-sellers (Calabresa, A Moda, Catuperoni) that spin gently,
+ * each linking to its product page. No carousel — just the three pizzas.
  */
 export default async function MostOrdered() {
-  const mostOrdered = await getWeeklySuggestions();
+  const mostOrdered = await getMostOrdered();
   if (mostOrdered.length === 0) return null;
   return (
     <section className="bg-white pb-16 pt-14">

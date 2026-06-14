@@ -132,6 +132,28 @@ export async function getWeeklySuggestions(): Promise<Product[]> {
   }));
 }
 
+// "Mais Pedidos" home band: three fixed best-sellers, in this order.
+const MOST_ORDERED_NAMES = ["Calabresa", "A Moda", "Catuperoni"];
+
+export async function getMostOrdered(): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from("produtos")
+    .select("nome, slug, categoria, imagem, destaque_imagem")
+    .eq("ativo", true)
+    .in("nome", MOST_ORDERED_NAMES);
+  if (error || !data) return [];
+  const products = data.map((r): Product => ({
+    name: r.nome,
+    slug: r.slug,
+    category: r.categoria as ProductCategory,
+    image: r.destaque_imagem || r.imagem || "",
+  }));
+  // Keep the curated order regardless of how the DB returns them.
+  return MOST_ORDERED_NAMES.map((n) => products.find((p) => p.name === n)).filter(
+    (p): p is Product => Boolean(p),
+  );
+}
+
 export async function getBrands(): Promise<Brand[]> {
   const { data, error } = await supabase
     .from("marcas")

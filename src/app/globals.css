@@ -89,6 +89,18 @@ h4 {
   }
 }
 
+/* Fade-in for the weekly suggestion carousel swaps */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Pulsing heart (fornelover) */
 @keyframes heartPulse {
   0%,
