@@ -38,7 +38,7 @@ async function send(opts: {
       attachments: opts.attachment ? [opts.attachment] : undefined,
     });
     return { ok: true };
-  } catch (e) {
+  } catch {
     return { ok: false, error: "Falha ao enviar. Tente novamente." };
   }
 }
