@@ -6,7 +6,7 @@ import { slugify } from "@/lib/data";
 
 function refresh() {
   revalidatePath("/admin/marcas");
-  revalidatePath("/nossas-marcas");
+  revalidatePath("/marcas");
   revalidatePath("/");
 }
 

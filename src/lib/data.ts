@@ -17,9 +17,9 @@ export const navItems: NavItem[] = [
   { label: "Cardápio", href: "/cardapio" },
   { label: "Unidades", href: "/unidades" },
   { label: "Seja um franqueado", href: FRANQUIA_URL, external: true },
-  { label: "Nossas Marcas", href: "/nossas-marcas" },
+  { label: "Nossas Marcas", href: "/marcas" },
   { label: "Novidades", href: "/novidades" },
-  { label: "Sac", href: "/sac" },
+  { label: "Sac", href: "/contact" },
 ];
 
 export type City = { name: string; phone: string };
@@ -48,10 +48,10 @@ export const footerDepartments: NavItem[] = [
   { label: "A Forneria Original", href: "/a-forneria-original" },
   { label: "Cardápio", href: "/cardapio" },
   { label: "Unidades", href: "/unidades" },
-  { label: "SAC", href: "/sac" },
+  { label: "SAC", href: "/contact" },
   { label: "Trabalhe Conosco", href: "/trabalhe-conosco" },
   { label: "Seja um Franqueado", href: FRANQUIA_URL, external: true },
-  { label: "Nossas Marcas", href: "/nossas-marcas" },
+  { label: "Nossas Marcas", href: "/marcas" },
   { label: "Novidades", href: "/novidades" },
   { label: "Fornelover", href: "/fornelover" },
   { label: "Dúvidas Frequentes", href: "/duvidas-frequentes" },
@@ -61,7 +61,7 @@ export const footerDepartments: NavItem[] = [
 export const footerPolicies: NavItem[] = [
   { label: "Política de Privacidade", href: "/politica-de-privacidade" },
   { label: "Política de Cookie", href: "/politica-de-cookie" },
-  { label: "Política de LGPD", href: "/politica-de-lgpd" },
+  { label: "Política de LGPD", href: "/politica-lgpd" },
 ];
 
 export type SocialLink = { label: string; href: string; icon: SocialIcon };
@@ -258,11 +258,11 @@ export type HomeBrand = {
 
 export const homeBrands: HomeBrand[] = [
   { name: "Forneria Original Vegana", image: "/img/home/carrosel-marcas/forneria-vegana.png", href: "/cardapio" },
-  { name: "Condado", image: "/img/home/carrosel-marcas/condado.png", href: "/nossas-marcas" },
-  { name: "Pokemoon", image: "/img/home/carrosel-marcas/pokemoon.png", href: "/nossas-marcas" },
-  { name: "Rio Roots", image: "/img/home/carrosel-marcas/rio-roots.png", href: "/nossas-marcas" },
-  { name: "Wood Stock", image: "/img/home/carrosel-marcas/wood-stock.png", href: "/nossas-marcas" },
-  { name: "Forneria Massas", image: "/img/home/carrosel-marcas/forneria-massas-V2.png", href: "/nossas-marcas" },
+  { name: "Condado", image: "/img/home/carrosel-marcas/condado.png", href: "/marcas" },
+  { name: "Pokemoon", image: "/img/home/carrosel-marcas/pokemoon.png", href: "/marcas" },
+  { name: "Rio Roots", image: "/img/home/carrosel-marcas/rio-roots.png", href: "/marcas" },
+  { name: "Wood Stock", image: "/img/home/carrosel-marcas/wood-stock.png", href: "/marcas" },
+  { name: "Forneria Massas", image: "/img/home/carrosel-marcas/forneria-massas-V2.png", href: "/marcas" },
 ];
 
 // ---- Home: "Satisfação de quem comprou" testimonials ----
