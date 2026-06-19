@@ -29,7 +29,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://www.google.com;",
+              "frame-src 'self' https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://www.google.com https://www.googletagmanager.com;",
           },
         ],
       },
