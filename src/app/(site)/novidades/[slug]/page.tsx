@@ -20,7 +20,9 @@ export default async function PostPage({ params }: Params) {
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const paragraphs = (post.text ?? post.excerpt)
+  const content = post.text ?? post.excerpt;
+  const isHtml = /<(p|br|strong|b|em|i|a|ul|ol|li|h[1-6])[\s>/]/i.test(content);
+  const paragraphs = content
     .split(/\n+/)
     .map((p) => p.trim())
     .filter(Boolean);
@@ -57,11 +59,18 @@ export default async function PostPage({ params }: Params) {
             <h1 className="mt-2 text-2xl font-extrabold text-forneria-black md:text-3xl">
               {post.title}
             </h1>
-            <div className="mt-5 space-y-4 text-base leading-relaxed text-forneria-black/80">
-              {paragraphs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
+            {isHtml ? (
+              <div
+                className="richtext mt-5 text-base leading-relaxed text-forneria-black/80"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            ) : (
+              <div className="mt-5 space-y-4 text-base leading-relaxed text-forneria-black/80">
+                {paragraphs.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
           </article>
 
           <aside>

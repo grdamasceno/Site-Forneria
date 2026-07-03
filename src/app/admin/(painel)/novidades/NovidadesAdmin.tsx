@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Modal, Toggle, ImageUploadButton, inputCls } from "@/components/admin/ui";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 import { savePost, togglePublicado, deletePost, uploadImagemPost } from "./actions";
 
 export type AdminPost = {
@@ -74,10 +75,10 @@ export default function NovidadesAdmin({ posts }: { posts: AdminPost[] }) {
               <span className="mb-1 block text-forneria-black/70">Resumo (aparece nos cards)</span>
               <textarea name="resumo" defaultValue={editing.resumo ?? ""} rows={2} className={inputCls} />
             </label>
-            <label className="block text-sm">
-              <span className="mb-1 block text-forneria-black/70">Conteúdo (um parágrafo por linha)</span>
-              <textarea name="conteudo" defaultValue={editing.conteudo ?? ""} rows={8} className={inputCls} />
-            </label>
+            <div className="block text-sm">
+              <span className="mb-1 block text-forneria-black/70">Conteúdo</span>
+              <RichTextEditor name="conteudo" defaultValue={editing.conteudo} />
+            </div>
             <div className="flex justify-end">
               <button type="submit" className="rounded-md bg-forneria-red px-6 py-2 font-bold text-white">Salvar</button>
             </div>
