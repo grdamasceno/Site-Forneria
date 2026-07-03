@@ -7,6 +7,7 @@ import { ingredientesDisponiveis } from "@/lib/ingredientes";
 import {
   createProduto,
   deleteProduto,
+  renameProduto,
   saveNutricao,
   deleteNutricao,
   setCategoria,
@@ -60,6 +61,52 @@ function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
       aria-pressed={on}
     >
       <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
+    </button>
+  );
+}
+
+function EditableName({ product }: { product: AdminProduct }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(product.nome);
+  const [pending, start] = useTransition();
+
+  function save() {
+    const nome = value.trim();
+    setEditing(false);
+    if (!nome || nome === product.nome) {
+      setValue(product.nome);
+      return;
+    }
+    start(() => renameProduto(product.id, nome));
+  }
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onBlur={save}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") save();
+          if (e.key === "Escape") { setValue(product.nome); setEditing(false); }
+        }}
+        className="w-full rounded border border-forneria-red px-2 py-1 text-sm font-medium uppercase outline-none"
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => { setValue(product.nome); setEditing(true); }}
+      title="Clique para editar o nome"
+      className="group flex items-center gap-1.5 text-left font-medium uppercase text-forneria-black hover:text-forneria-red"
+    >
+      <span>{product.nome}</span>
+      <span className={`text-xs ${pending ? "" : "opacity-0 transition group-hover:opacity-60"}`}>
+        {pending ? "..." : "✎"}
+      </span>
     </button>
   );
 }
@@ -162,7 +209,7 @@ export default function CardapioAdmin({ products }: { products: AdminProduct[] }
           <tbody>
             {filtered.map((p) => (
               <tr key={p.id} className="border-b last:border-0 hover:bg-forneria-gray/40">
-                <td className="p-3 font-medium uppercase text-forneria-black">{p.nome}</td>
+                <td className="p-3"><EditableName product={p} /></td>
                 <td className="p-3"><Toggle on={p.ativo} onClick={() => start(() => toggleField(p.id, "ativo", !p.ativo))} /></td>
                 <td className="p-3"><Toggle on={p.semana} onClick={() => start(() => toggleField(p.id, "semana", !p.semana))} /></td>
                 <td className="p-3">
