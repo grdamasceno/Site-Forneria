@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminUnidadesPage() {
   const sb = await createServerSupabase();
   const [{ data: unidades }, { data: regioes }] = await Promise.all([
-    sb.from("unidades").select("*").order("nome"),
+    sb.from("unidades").select("*").order("codigo", { nullsFirst: false }).order("nome"),
     sb.from("regioes").select("id, nome").order("nome"),
   ]);
 
