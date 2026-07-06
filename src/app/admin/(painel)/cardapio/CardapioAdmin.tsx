@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { useMemo, useRef, useState, useTransition } from "react";
 import type { ProductCategory } from "@/lib/data";
-import { ingredientesDisponiveis } from "@/lib/ingredientes";
 import {
   createProduto,
+  createIngrediente,
   deleteProduto,
   renameProduto,
   saveNutricao,
@@ -143,7 +143,13 @@ function ImageCell({ product, campo, url }: { product: AdminProduct; campo: stri
   );
 }
 
-export default function CardapioAdmin({ products }: { products: AdminProduct[] }) {
+export default function CardapioAdmin({
+  products,
+  ingredientes,
+}: {
+  products: AdminProduct[];
+  ingredientes: string[];
+}) {
   const [query, setQuery] = useState("");
   const [cat, setCat] = useState("");
   const [ativo, setAtivo] = useState("");
@@ -251,7 +257,7 @@ export default function CardapioAdmin({ products }: { products: AdminProduct[] }
       <p className="mt-2 text-xs text-forneria-black/50">{filtered.length} produto(s)</p>
 
       {ingredientesDe && (
-        <IngredientesModal product={ingredientesDe} onClose={() => setIngredientesDe(null)} />
+        <IngredientesModal product={ingredientesDe} todos={ingredientes} onClose={() => setIngredientesDe(null)} />
       )}
       {nutricaoDe && (
         <NutricaoModal product={nutricaoDe} onClose={() => setNutricaoDe(null)} />
@@ -275,22 +281,50 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
   );
 }
 
-function IngredientesModal({ product, onClose }: { product: AdminProduct; onClose: () => void }) {
+function IngredientesModal({
+  product,
+  todos,
+  onClose,
+}: {
+  product: AdminProduct;
+  todos: string[];
+  onClose: () => void;
+}) {
   const [selected, setSelected] = useState<string[]>(
     (product.ingredientes ?? "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean),
   );
+  // Lista completa local (para os recém-criados aparecerem na hora).
+  const [todosLocal, setTodosLocal] = useState<string[]>(todos);
+  const [novo, setNovo] = useState("");
   const [, start] = useTransition();
+  const [criando, startCriar] = useTransition();
 
-  const available = ingredientesDisponiveis.filter((i) => !selected.includes(i));
+  const available = todosLocal.filter((i) => !selected.includes(i));
 
   function add(name: string) {
     if (name && !selected.includes(name)) setSelected([...selected, name]);
   }
   function remove(name: string) {
     setSelected(selected.filter((s) => s !== name));
+  }
+
+  function criarNovo() {
+    const nome = novo.trim().toLowerCase();
+    if (!nome) return;
+    // Já existe? apenas seleciona.
+    if (todosLocal.some((i) => i.toLowerCase() === nome)) {
+      const existente = todosLocal.find((i) => i.toLowerCase() === nome)!;
+      add(existente);
+      setNovo("");
+      return;
+    }
+    setTodosLocal([...todosLocal, nome].sort((a, b) => a.localeCompare(b)));
+    add(nome);
+    setNovo("");
+    startCriar(() => { createIngrediente(nome); });
   }
   function move(idx: number, dir: -1 | 1) {
     const next = [...selected];
@@ -315,6 +349,30 @@ function IngredientesModal({ product, onClose }: { product: AdminProduct; onClos
           <option key={i} value={i}>{i}</option>
         ))}
       </select>
+
+      <label className="mb-1 mt-4 block text-sm font-medium text-forneria-black/70">
+        Criar novo ingrediente
+      </label>
+      <div className="flex gap-2">
+        <input
+          value={novo}
+          onChange={(e) => setNovo(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); criarNovo(); } }}
+          placeholder="Digite e clique em Criar"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
+        <button
+          type="button"
+          onClick={criarNovo}
+          disabled={criando || !novo.trim()}
+          className="shrink-0 rounded-md bg-forneria-red px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+        >
+          {criando ? "..." : "Criar +"}
+        </button>
+      </div>
+      <p className="mt-1 text-xs text-forneria-black/50">
+        O novo ingrediente já entra selecionado e fica disponível para os outros produtos.
+      </p>
 
       <p className="mb-2 mt-4 text-sm font-medium text-forneria-black/70">
         Selecionados (na ordem de exibição)

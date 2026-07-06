@@ -1,6 +1,21 @@
 // Server-side data access — reads from Supabase (public/anon, governed by RLS).
 import { supabase } from "@/lib/supabase/client";
 import type { Product, Unit, Post, Brand, Banner, ProductCategory } from "@/lib/data";
+import { ingredientesDisponiveis } from "@/lib/ingredientes";
+
+/**
+ * Ingredientes reutilizáveis. Lê da tabela `ingredientes`; se ela ainda não
+ * existir (migração 0004 não rodada) ou vier vazia, cai na lista fixa do código.
+ */
+export async function getIngredientes(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from("ingredientes")
+    .select("nome")
+    .eq("ativo", true)
+    .order("nome");
+  if (error || !data || data.length === 0) return ingredientesDisponiveis;
+  return data.map((r) => r.nome);
+}
 
 type NutricaoRow = {
   porcao: string | null;

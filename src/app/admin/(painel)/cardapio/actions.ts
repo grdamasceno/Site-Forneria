@@ -121,3 +121,18 @@ export async function deleteNutricao(id: string) {
   await sb.from("produto_nutricao").delete().eq("id", id);
   refresh();
 }
+
+/** Cria um ingrediente reutilizável (fica disponível para todos os produtos). */
+export async function createIngrediente(nome: string): Promise<{ ok: boolean; message: string }> {
+  const clean = nome.trim().toLowerCase();
+  if (!clean) return { ok: false, message: "Informe um nome." };
+  const sb = await createServerSupabase();
+  const { error } = await sb.from("ingredientes").insert({ nome: clean });
+  if (error) {
+    // 23505 = unique_violation → já existe (tratamos como sucesso silencioso)
+    if (error.code === "23505") return { ok: true, message: "Ingrediente já existia." };
+    return { ok: false, message: error.message };
+  }
+  revalidatePath("/admin/cardapio");
+  return { ok: true, message: "Ingrediente criado." };
+}
