@@ -4,12 +4,11 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-const SUPER_ADMIN = "thais@onchannel.io";
-
+// Todo usuário do backoffice tem domínio total. Basta estar autenticado.
 async function assertAdmin() {
   const sb = await createServerSupabase();
   const { data: { user } } = await sb.auth.getUser();
-  if (!user || user.email !== SUPER_ADMIN) {
+  if (!user) {
     throw new Error("Não autorizado");
   }
 }
