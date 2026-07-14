@@ -8,34 +8,22 @@ function refresh() {
   revalidatePath("/");
 }
 
-async function uploadToBanners(file: File, pagina: string, suffix: string) {
-  if (!file || file.size === 0) return null;
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const path = `${pagina}/${Date.now()}-${suffix}.${ext}`;
+/**
+ * Insere um banner cujas imagens JÁ foram enviadas ao Storage pelo navegador
+ * (upload direto). Assim o arquivo não trafega pela Server Action, evitando o
+ * limite de corpo (~4,5 MB) das funções serverless.
+ */
+export async function insertBanner(data: {
+  pagina: string;
+  href: string | null;
+  alt: string | null;
+  ordem: number;
+  imagem: string;
+  imagem_mobile: string | null;
+}) {
   const sb = await createServerSupabase();
-  const { error } = await sb.storage.from("banners").upload(path, new Uint8Array(await file.arrayBuffer()), {
-    upsert: true,
-    contentType: file.type || "image/jpeg",
-  });
-  if (error) return null;
-  const { data: pub } = sb.storage.from("banners").getPublicUrl(path);
-  return pub.publicUrl;
-}
-
-export async function addBanner(formData: FormData) {
-  const pagina = String(formData.get("pagina") || "home");
-  const href = String(formData.get("href") || "").trim() || null;
-  const alt = String(formData.get("alt") || "").trim() || null;
-  const ordem = Number(formData.get("ordem")) || 0;
-  const desktop = formData.get("desktop") as File;
-  const mobile = formData.get("mobile") as File;
-
-  const imagem = await uploadToBanners(desktop, pagina, "d");
-  if (!imagem) return;
-  const imagem_mobile = await uploadToBanners(mobile, pagina, "m");
-
-  const sb = await createServerSupabase();
-  await sb.from("banners").insert({ pagina, href, alt, ordem, imagem, imagem_mobile, ativo: true });
+  const { error } = await sb.from("banners").insert({ ...data, ativo: true });
+  if (error) throw new Error(error.message);
   refresh();
 }
 

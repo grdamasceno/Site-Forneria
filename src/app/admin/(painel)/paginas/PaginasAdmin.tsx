@@ -1,9 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Toggle, inputCls } from "@/components/admin/ui";
-import { addBanner, deleteBanner, toggleBannerAtivo } from "./actions";
+import { createBrowserSupabase } from "@/lib/supabase/browser";
+import { insertBanner, deleteBanner, toggleBannerAtivo } from "./actions";
+
+async function uploadBanner(file: File, pagina: string, suffix: string): Promise<string> {
+  const supabase = createBrowserSupabase();
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+  const path = `${pagina}/${Date.now()}-${suffix}.${ext}`;
+  const { error } = await supabase.storage.from("banners").upload(path, file, {
+    upsert: true,
+    contentType: file.type || "image/jpeg",
+  });
+  if (error) throw new Error(error.message);
+  return supabase.storage.from("banners").getPublicUrl(path).data.publicUrl;
+}
 
 export type AdminBanner = {
   id: string;
@@ -50,29 +63,68 @@ export default function PaginasAdmin({ banners }: { banners: AdminBanner[] }) {
               {slides.length === 0 && <p className="text-sm text-forneria-black/50">Nenhum banner nesta página.</p>}
             </div>
 
-            <form action={(fd) => start(() => addBanner(fd))} className="flex flex-wrap items-end gap-3 rounded-md bg-forneria-gray/50 p-3">
-              <input type="hidden" name="pagina" value={pg.key} />
-              <label className="text-sm">
-                <span className="mb-1 block text-forneria-black/70">Imagem desktop</span>
-                <input type="file" name="desktop" accept="image/*" required className="text-sm" />
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-forneria-black/70">Imagem mobile</span>
-                <input type="file" name="mobile" accept="image/*" className="text-sm" />
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-forneria-black/70">Link (opcional)</span>
-                <input name="href" placeholder="https://..." className={inputCls} />
-              </label>
-              <label className="text-sm">
-                <span className="mb-1 block text-forneria-black/70">Ordem</span>
-                <input name="ordem" type="number" defaultValue={slides.length} className="w-20 rounded-md border border-gray-300 px-2 py-2 text-sm" />
-              </label>
-              <button type="submit" className="rounded-full bg-forneria-red px-5 py-2 text-sm font-bold text-white">Inserir imagem</button>
-            </form>
+            <BannerForm pagina={pg.key} defaultOrdem={slides.length} />
           </section>
         );
       })}
     </div>
+  );
+}
+
+function BannerForm({ pagina, defaultOrdem }: { pagina: string; defaultOrdem: number }) {
+  const [busy, setBusy] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setErro("");
+    const form = e.currentTarget;
+    const data = new FormData(form);
+    const desktop = data.get("desktop") as File;
+    const mobile = data.get("mobile") as File;
+    const href = String(data.get("href") || "").trim() || null;
+    const ordem = Number(data.get("ordem")) || 0;
+
+    if (!desktop || desktop.size === 0) {
+      setErro("Selecione a imagem desktop.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const imagem = await uploadBanner(desktop, pagina, "d");
+      const imagem_mobile =
+        mobile && mobile.size > 0 ? await uploadBanner(mobile, pagina, "m") : null;
+      await insertBanner({ pagina, href, alt: null, ordem, imagem, imagem_mobile });
+      form.reset();
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Falha ao enviar. Tente novamente.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-3 rounded-md bg-forneria-gray/50 p-3">
+      <label className="text-sm">
+        <span className="mb-1 block text-forneria-black/70">Imagem desktop</span>
+        <input type="file" name="desktop" accept="image/*" required className="text-sm" />
+      </label>
+      <label className="text-sm">
+        <span className="mb-1 block text-forneria-black/70">Imagem mobile</span>
+        <input type="file" name="mobile" accept="image/*" className="text-sm" />
+      </label>
+      <label className="text-sm">
+        <span className="mb-1 block text-forneria-black/70">Link (opcional)</span>
+        <input name="href" placeholder="https://..." className={inputCls} />
+      </label>
+      <label className="text-sm">
+        <span className="mb-1 block text-forneria-black/70">Ordem</span>
+        <input name="ordem" type="number" defaultValue={defaultOrdem} className="w-20 rounded-md border border-gray-300 px-2 py-2 text-sm" />
+      </label>
+      <button type="submit" disabled={busy} className="rounded-full bg-forneria-red px-5 py-2 text-sm font-bold text-white disabled:opacity-50">
+        {busy ? "Enviando..." : "Inserir imagem"}
+      </button>
+      {erro && <p className="w-full text-sm text-forneria-red">Erro: {erro}</p>}
+    </form>
   );
 }
