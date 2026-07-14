@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Uploads (banners, fachadas, fotos de produto) vão por Server Actions.
+  // O padrão é 1 MB — imagens de banner passam disso e estouravam.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "15mb",
+    },
+  },
   images: {
     remotePatterns: [
       {
