@@ -40,7 +40,7 @@ export function formatBytes(n: number) {
  */
 export async function compressImage(
   file: File,
-  { maxWidth = 2560, quality = 0.85 }: { maxWidth?: number; quality?: number } = {},
+  { maxWidth = 2560, quality = 0.92 }: { maxWidth?: number; quality?: number } = {},
 ): Promise<File> {
   // SVG é vetor e GIF pode ser animado — não mexer.
   if (!file.type.startsWith("image/") || file.type === "image/svg+xml" || file.type === "image/gif") {
