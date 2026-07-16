@@ -2,8 +2,9 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { Modal, Toggle, ImageUploadButton, inputCls } from "@/components/admin/ui";
-import { unitStates } from "@/lib/data";
-import { saveUnidade, toggleAtivo, deleteUnidade, uploadFachada } from "./actions";
+import { unitStates, slugify } from "@/lib/data";
+import { ext } from "@/lib/upload-client";
+import { saveUnidade, toggleAtivo, deleteUnidade, setFachadaUrl } from "./actions";
 
 export type Regiao = { id: string; nome: string };
 export type AdminUnidade = {
@@ -61,7 +62,12 @@ export default function UnidadesAdmin({ unidades, regioes }: { unidades: AdminUn
                 <td className="p-3"><Toggle on={u.ativo} onClick={() => start(() => toggleAtivo(u.id, !u.ativo))} /></td>
                 <td className="max-w-xs p-3 text-xs text-forneria-black/60">{u.horario}</td>
                 <td className="p-3">
-                  <ImageUploadButton url={u.imagem} uploadAction={uploadFachada} fields={{ id: u.id, nome: u.nome }} />
+                  <ImageUploadButton
+                    url={u.imagem}
+                    bucket="unidades"
+                    buildPath={(f) => `${slugify(u.nome) || u.id}.${ext(f)}`}
+                    save={(url) => setFachadaUrl(u.id, url)}
+                  />
                 </td>
                 <td className="p-3">
                   <button onClick={() => setEditing(u)} className="text-forneria-red underline-offset-2 hover:underline">editar</button>

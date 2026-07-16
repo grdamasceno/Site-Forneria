@@ -49,20 +49,10 @@ export async function savePost(formData: FormData) {
   refresh();
 }
 
-export async function uploadImagemPost(formData: FormData) {
-  const id = String(formData.get("id"));
-  const slug = String(formData.get("slug") || id);
-  const file = formData.get("file") as File;
-  if (!file || file.size === 0) return;
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const path = `${slug}.${ext}`;
+/** Grava a URL da imagem do post (já enviada ao Storage pelo navegador). */
+export async function setPostImagemUrl(id: string, url: string) {
   const sb = await createServerSupabase();
-  const { error } = await sb.storage.from("blog").upload(path, new Uint8Array(await file.arrayBuffer()), {
-    upsert: true,
-    contentType: file.type || "image/jpeg",
-  });
-  if (error) return;
-  const { data: pub } = sb.storage.from("blog").getPublicUrl(path);
-  await sb.from("posts").update({ imagem: `${pub.publicUrl}?v=${Date.now()}` }).eq("id", id);
+  const { error } = await sb.from("posts").update({ imagem: url }).eq("id", id);
+  if (error) throw new Error(error.message);
   refresh();
 }

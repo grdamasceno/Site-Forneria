@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useMemo, useRef, useState, useTransition } from "react";
 import type { ProductCategory } from "@/lib/data";
+import { uploadToBucket, ext } from "@/lib/upload-client";
 import {
   createProduto,
   createIngrediente,
@@ -12,9 +13,17 @@ import {
   deleteNutricao,
   setCategoria,
   setIngredientes,
+  setImagemUrl,
   toggleField,
-  uploadImagem,
 } from "./actions";
+
+// Pasta no bucket `cardapio` por categoria.
+const CAT_DIR: Record<ProductCategory, string> = {
+  "pizza-salgada": "salgada",
+  "pizza-doce": "doce",
+  vegana: "vegana",
+  fornerito: "fornerito",
+};
 
 export type NutricaoRow = {
   id: string;
@@ -113,33 +122,40 @@ function EditableName({ product }: { product: AdminProduct }) {
 
 function ImageCell({ product, campo, url }: { product: AdminProduct; campo: string; url: string | null }) {
   const ref = useRef<HTMLInputElement>(null);
-  const [pending, start] = useTransition();
+  const [busy, setBusy] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    setErro("");
+    try {
+      const dir = CAT_DIR[product.categoria] ?? "outros";
+      const path = `${dir}/${product.slug}-${campo}.${ext(file)}`;
+      const publicUrl = await uploadToBucket("cardapio", path, file);
+      await setImagemUrl(product.id, campo, `${publicUrl}?v=${Date.now()}`);
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Falha no upload.");
+    } finally {
+      setBusy(false);
+      e.target.value = "";
+    }
+  }
+
   return (
-    <button type="button" onClick={() => ref.current?.click()} className="relative block h-12 w-12" title="Trocar imagem">
-      {url ? (
-        <Image src={url} alt="" fill sizes="48px" className="rounded object-cover" />
-      ) : (
-        <span className="flex h-12 w-12 items-center justify-center rounded border border-dashed border-gray-400 text-lg text-gray-400">+</span>
-      )}
-      {pending && <span className="absolute inset-0 grid place-items-center bg-white/70 text-xs">...</span>}
-      <input
-        ref={ref}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const fd = new FormData();
-          fd.set("id", product.id);
-          fd.set("slug", product.slug);
-          fd.set("campo", campo);
-          fd.set("categoria", product.categoria);
-          fd.set("file", file);
-          start(() => uploadImagem(fd));
-        }}
-      />
-    </button>
+    <span className="inline-block">
+      <button type="button" onClick={() => ref.current?.click()} className="relative block h-12 w-12" title="Trocar imagem">
+        {url ? (
+          <Image src={url} alt="" fill sizes="48px" className="rounded object-cover" />
+        ) : (
+          <span className="flex h-12 w-12 items-center justify-center rounded border border-dashed border-gray-400 text-lg text-gray-400">+</span>
+        )}
+        {busy && <span className="absolute inset-0 grid place-items-center rounded bg-white/70 text-xs">...</span>}
+        <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+      </button>
+      {erro && <span className="mt-1 block max-w-[100px] text-[10px] leading-tight text-forneria-red">{erro}</span>}
+    </span>
   );
 }
 

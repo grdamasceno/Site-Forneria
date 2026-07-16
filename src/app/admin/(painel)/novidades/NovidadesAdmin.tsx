@@ -3,7 +3,8 @@
 import { useState, useTransition } from "react";
 import { Modal, Toggle, ImageUploadButton, inputCls } from "@/components/admin/ui";
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import { savePost, togglePublicado, deletePost, uploadImagemPost } from "./actions";
+import { ext } from "@/lib/upload-client";
+import { savePost, togglePublicado, deletePost, setPostImagemUrl } from "./actions";
 
 export type AdminPost = {
   id: string;
@@ -46,7 +47,12 @@ export default function NovidadesAdmin({ posts }: { posts: AdminPost[] }) {
               <tr key={p.id} className="border-b last:border-0 hover:bg-forneria-gray/40">
                 <td className="max-w-sm p-3 font-medium text-forneria-black">{p.titulo}</td>
                 <td className="p-3">
-                  <ImageUploadButton url={p.imagem} uploadAction={uploadImagemPost} fields={{ id: p.id, slug: p.slug }} />
+                  <ImageUploadButton
+                    url={p.imagem}
+                    bucket="blog"
+                    buildPath={(f) => `${p.slug || p.id}.${ext(f, "jpg")}`}
+                    save={(url) => setPostImagemUrl(p.id, url)}
+                  />
                 </td>
                 <td className="p-3"><Toggle on={p.publicado} onClick={() => start(() => togglePublicado(p.id, !p.publicado))} /></td>
                 <td className="p-3 text-xs text-forneria-black/60">{p.data}</td>

@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { Modal, Toggle, ImageUploadButton, inputCls } from "@/components/admin/ui";
-import { saveMarca, toggleAtiva, deleteMarca, uploadLogoMarca } from "./actions";
+import { slugify } from "@/lib/data";
+import { ext } from "@/lib/upload-client";
+import { saveMarca, toggleAtiva, deleteMarca, setMarcaLogoUrl } from "./actions";
 
 export type AdminMarca = {
   id: string;
@@ -41,7 +43,14 @@ export default function MarcasAdmin({ marcas }: { marcas: AdminMarca[] }) {
           <tbody>
             {marcas.map((m) => (
               <tr key={m.id} className="border-b last:border-0 hover:bg-forneria-gray/40">
-                <td className="p-3"><ImageUploadButton url={m.imagem} uploadAction={uploadLogoMarca} fields={{ id: m.id, nome: m.nome }} /></td>
+                <td className="p-3">
+                  <ImageUploadButton
+                    url={m.imagem}
+                    bucket="marcas"
+                    buildPath={(f) => `${slugify(m.nome) || m.id}.${ext(f)}`}
+                    save={(url) => setMarcaLogoUrl(m.id, url)}
+                  />
+                </td>
                 <td className="p-3 font-medium text-forneria-black">{m.nome}</td>
                 <td className="p-3"><Toggle on={m.ativo} onClick={() => start(() => toggleAtiva(m.id, !m.ativo))} /></td>
                 <td className="p-3 text-forneria-black/60">{m.ordem}</td>

@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
-import { slugify } from "@/lib/data";
 
 function refresh() {
   revalidatePath("/admin/marcas");
@@ -36,20 +35,10 @@ export async function saveMarca(formData: FormData) {
   refresh();
 }
 
-export async function uploadLogoMarca(formData: FormData) {
-  const id = String(formData.get("id"));
-  const nome = String(formData.get("nome") || "marca");
-  const file = formData.get("file") as File;
-  if (!file || file.size === 0) return;
-  const ext = (file.name.split(".").pop() || "png").toLowerCase();
-  const path = `${slugify(nome) || id}.${ext}`;
+/** Grava a URL do logo da marca (já enviado ao Storage pelo navegador). */
+export async function setMarcaLogoUrl(id: string, url: string) {
   const sb = await createServerSupabase();
-  const { error } = await sb.storage.from("marcas").upload(path, new Uint8Array(await file.arrayBuffer()), {
-    upsert: true,
-    contentType: file.type || "image/png",
-  });
-  if (error) return;
-  const { data: pub } = sb.storage.from("marcas").getPublicUrl(path);
-  await sb.from("marcas").update({ imagem: `${pub.publicUrl}?v=${Date.now()}` }).eq("id", id);
+  const { error } = await sb.from("marcas").update({ imagem: url }).eq("id", id);
+  if (error) throw new Error(error.message);
   refresh();
 }

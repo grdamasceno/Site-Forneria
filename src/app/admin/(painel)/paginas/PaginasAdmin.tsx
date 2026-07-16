@@ -3,19 +3,11 @@
 import Image from "next/image";
 import { useState, useTransition } from "react";
 import { Toggle, inputCls } from "@/components/admin/ui";
-import { createBrowserSupabase } from "@/lib/supabase/browser";
+import { uploadToBucket, ext } from "@/lib/upload-client";
 import { insertBanner, deleteBanner, toggleBannerAtivo } from "./actions";
 
-async function uploadBanner(file: File, pagina: string, suffix: string): Promise<string> {
-  const supabase = createBrowserSupabase();
-  const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-  const path = `${pagina}/${Date.now()}-${suffix}.${ext}`;
-  const { error } = await supabase.storage.from("banners").upload(path, file, {
-    upsert: true,
-    contentType: file.type || "image/jpeg",
-  });
-  if (error) throw new Error(error.message);
-  return supabase.storage.from("banners").getPublicUrl(path).data.publicUrl;
+function uploadBanner(file: File, pagina: string, suffix: string): Promise<string> {
+  return uploadToBucket("banners", `${pagina}/${Date.now()}-${suffix}.${ext(file, "jpg")}`, file);
 }
 
 export type AdminBanner = {

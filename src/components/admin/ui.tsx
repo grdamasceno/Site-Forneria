@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useTransition } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
+import { uploadToBucket } from "@/lib/upload-client";
 
 export function Toggle({ on, onClick }: { on: boolean; onClick: () => void }) {
   return (
@@ -43,41 +44,57 @@ export function Modal({
   );
 }
 
-/** Small image thumbnail that uploads on click via a server action (FormData). */
+/**
+ * Miniatura que, ao clicar, envia a imagem DIRETO para o Supabase Storage
+ * (sem passar pela Server Action, logo sem o teto de ~4,5 MB) e depois grava a
+ * URL no banco via `save`. Erros aparecem na tela.
+ */
 export function ImageUploadButton({
   url,
-  uploadAction,
-  fields,
+  bucket,
+  buildPath,
+  save,
 }: {
   url: string | null;
-  uploadAction: (fd: FormData) => Promise<void>;
-  fields: Record<string, string>;
+  bucket: string;
+  /** Caminho do arquivo dentro do bucket, a partir do File escolhido. */
+  buildPath: (file: File) => string;
+  /** Server action que persiste a URL pública no registro. */
+  save: (publicUrl: string) => Promise<void>;
 }) {
   const ref = useRef<HTMLInputElement>(null);
-  const [pending, start] = useTransition();
+  const [busy, setBusy] = useState(false);
+  const [erro, setErro] = useState("");
+
+  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    setErro("");
+    try {
+      const publicUrl = await uploadToBucket(bucket, buildPath(file), file);
+      await save(`${publicUrl}?v=${Date.now()}`);
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Falha no upload.");
+    } finally {
+      setBusy(false);
+      e.target.value = "";
+    }
+  }
+
   return (
-    <button type="button" onClick={() => ref.current?.click()} className="relative block h-14 w-14" title="Trocar imagem">
-      {url ? (
-        <Image src={url} alt="" fill sizes="56px" className="rounded object-cover" />
-      ) : (
-        <span className="flex h-14 w-14 items-center justify-center rounded border border-dashed border-gray-400 text-lg text-gray-400">+</span>
-      )}
-      {pending && <span className="absolute inset-0 grid place-items-center bg-white/70 text-xs">...</span>}
-      <input
-        ref={ref}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (!file) return;
-          const fd = new FormData();
-          Object.entries(fields).forEach(([k, v]) => fd.set(k, v));
-          fd.set("file", file);
-          start(() => uploadAction(fd));
-        }}
-      />
-    </button>
+    <span className="inline-block">
+      <button type="button" onClick={() => ref.current?.click()} className="relative block h-14 w-14" title="Trocar imagem">
+        {url ? (
+          <Image src={url} alt="" fill sizes="56px" className="rounded object-cover" />
+        ) : (
+          <span className="flex h-14 w-14 items-center justify-center rounded border border-dashed border-gray-400 text-lg text-gray-400">+</span>
+        )}
+        {busy && <span className="absolute inset-0 grid place-items-center rounded bg-white/70 text-xs">...</span>}
+        <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+      </button>
+      {erro && <span className="mt-1 block max-w-[120px] text-[10px] leading-tight text-forneria-red">{erro}</span>}
+    </span>
   );
 }
 

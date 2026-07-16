@@ -4,13 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { slugify, type ProductCategory } from "@/lib/data";
 
-const CAT_DIR: Record<ProductCategory, string> = {
-  "pizza-salgada": "salgada",
-  "pizza-doce": "doce",
-  vegana: "vegana",
-  fornerito: "fornerito",
-};
-
 const CAMPO_COL: Record<string, "imagem" | "destaque_imagem" | "imagem_mobile"> = {
   principal: "imagem",
   destaque: "destaque_imagem",
@@ -67,30 +60,13 @@ export async function deleteProduto(id: string) {
   refresh();
 }
 
-export async function uploadImagem(formData: FormData) {
-  const id = String(formData.get("id"));
-  const slug = String(formData.get("slug"));
-  const campo = String(formData.get("campo"));
-  const categoria = String(formData.get("categoria")) as ProductCategory;
-  const file = formData.get("file") as File;
-  if (!file || file.size === 0) return;
-
+/** Grava a URL da imagem (já enviada ao Storage pelo navegador). */
+export async function setImagemUrl(id: string, campo: string, url: string) {
   const col = CAMPO_COL[campo];
-  const ext = (file.name.split(".").pop() || "png").toLowerCase();
-  const dir = CAT_DIR[categoria] ?? "outros";
-  const path = `${dir}/${slug}-${campo}.${ext}`;
-
+  if (!col) return;
   const sb = await createServerSupabase();
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const { error } = await sb.storage.from("cardapio").upload(path, bytes, {
-    upsert: true,
-    contentType: file.type || "image/png",
-  });
-  if (error) return;
-
-  const { data: pub } = sb.storage.from("cardapio").getPublicUrl(path);
-  const url = `${pub.publicUrl}?v=${Date.now()}`;
-  await sb.from("produtos").update({ [col]: url }).eq("id", id);
+  const { error } = await sb.from("produtos").update({ [col]: url }).eq("id", id);
+  if (error) throw new Error(error.message);
   refresh();
 }
 
