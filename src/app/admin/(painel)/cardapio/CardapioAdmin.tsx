@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useMemo, useRef, useState, useTransition } from "react";
 import type { ProductCategory } from "@/lib/data";
-import { uploadToBucket, ext } from "@/lib/upload-client";
+import { uploadToBucket, ext, compressImage, formatBytes } from "@/lib/upload-client";
 import {
   createProduto,
   createIngrediente,
@@ -124,17 +124,26 @@ function ImageCell({ product, campo, url }: { product: AdminProduct; campo: stri
   const ref = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [erro, setErro] = useState("");
+  const [info, setInfo] = useState("");
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setBusy(true);
     setErro("");
+    setInfo("");
     try {
+      // Comprime no navegador (WebP, mantém transparência) antes de enviar.
+      const otimizado = await compressImage(file);
       const dir = CAT_DIR[product.categoria] ?? "outros";
-      const path = `${dir}/${product.slug}-${campo}.${ext(file)}`;
-      const publicUrl = await uploadToBucket("cardapio", path, file);
+      const path = `${dir}/${product.slug}-${campo}.${ext(otimizado)}`;
+      const publicUrl = await uploadToBucket("cardapio", path, otimizado);
       await setImagemUrl(product.id, campo, `${publicUrl}?v=${Date.now()}`);
+      setInfo(
+        otimizado === file
+          ? formatBytes(file.size)
+          : `${formatBytes(file.size)} → ${formatBytes(otimizado.size)}`,
+      );
     } catch (err) {
       setErro(err instanceof Error ? err.message : "Falha no upload.");
     } finally {
@@ -155,6 +164,9 @@ function ImageCell({ product, campo, url }: { product: AdminProduct; campo: stri
         <input ref={ref} type="file" accept="image/*" className="hidden" onChange={handleChange} />
       </button>
       {erro && <span className="mt-1 block max-w-[100px] text-[10px] leading-tight text-forneria-red">{erro}</span>}
+      {info && !erro && (
+        <span className="mt-1 block max-w-[100px] text-[10px] leading-tight text-green-600">{info}</span>
+      )}
     </span>
   );
 }
