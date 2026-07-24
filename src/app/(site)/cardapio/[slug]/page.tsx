@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { Nutrition, ProductCategory } from "@/lib/data";
+import type { ProductCategory } from "@/lib/data";
 import { getProductBySlug } from "@/lib/queries";
+import NutritionTables from "@/components/NutritionTables";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -24,30 +25,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-const NUTRITION_ROWS: { key: keyof Nutrition; label: string }[][] = [
-  [
-    { key: "porcao", label: "Porção" },
-    { key: "carboidratos", label: "Carboidratos" },
-    { key: "proteinas", label: "Proteínas" },
-    { key: "gordurasTotais", label: "Gorduras Totais" },
-    { key: "gordurasSaturadas", label: "Gorduras Saturadas" },
-  ],
-  [
-    { key: "fibras", label: "Fibras" },
-    { key: "caloriasKcal", label: "Calorias Kcal" },
-    { key: "gordurasTrans", label: "Gorduras Trans" },
-    { key: "sodio", label: "Sódio" },
-    { key: "caloriasKj", label: "Calorias KJ" },
-  ],
-];
-
 export default async function ProductPage({ params }: Params) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
   const categoryLabel = CATEGORY_LABEL[product.category] ?? "Pizza";
-  const nutrition = product.nutrition ?? {};
+  const nutritionList = product.nutritionList ?? [];
 
   return (
     <>
@@ -161,22 +145,8 @@ export default async function ProductPage({ params }: Params) {
               )}
             </p>
 
-            {/* Nutrition table */}
-            <h3 className="mt-8 flex items-center gap-1 font-bold text-forneria-black">
-              Tabela Nutricional <span className="text-forneria-red">›</span>
-            </h3>
-            <div className="mt-3 grid grid-cols-1 gap-x-8 gap-y-2 rounded-lg border-2 border-forneria-red/60 p-5 sm:grid-cols-2">
-              {NUTRITION_ROWS.map((column, ci) => (
-                <ul key={ci} className="space-y-1.5">
-                  {column.map(({ key, label }) => (
-                    <li key={key} className="flex justify-between gap-3 text-sm">
-                      <span className="font-semibold text-forneria-black">{label}:</span>
-                      <span className="text-forneria-red">{nutrition[key] ?? "—"}</span>
-                    </li>
-                  ))}
-                </ul>
-              ))}
-            </div>
+            {/* Nutrition tables — one per size, with a size selector */}
+            <NutritionTables list={nutritionList} />
 
             <a
               href="https://deliverydireto.com.br/forneria-original"

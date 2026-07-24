@@ -18,6 +18,7 @@ export async function getIngredientes(): Promise<string[]> {
 }
 
 type NutricaoRow = {
+  tamanho: string | null;
   porcao: string | null;
   carboidratos: string | null;
   proteinas: string | null;
@@ -40,30 +41,40 @@ type ProdutoRow = {
   produto_nutricao?: NutricaoRow[];
 };
 
+function toNutrition(n: NutricaoRow) {
+  return {
+    tamanho: n.tamanho ?? undefined,
+    porcao: n.porcao ?? undefined,
+    carboidratos: n.carboidratos ?? undefined,
+    proteinas: n.proteinas ?? undefined,
+    gordurasTotais: n.gorduras_totais ?? undefined,
+    gordurasSaturadas: n.gorduras_saturadas ?? undefined,
+    fibras: n.fibras ?? undefined,
+    caloriasKcal: n.calorias_kcal ?? undefined,
+    gordurasTrans: n.gorduras_trans ?? undefined,
+    sodio: n.sodio ?? undefined,
+    caloriasKj: n.calorias_kj ?? undefined,
+  };
+}
+
+/** Ordena por tamanho numérico (20 → 30 → 40 cm); sem número vai ao fim. */
+function sizeOrder(t?: string | null): number {
+  const m = (t ?? "").match(/\d+/);
+  return m ? Number(m[0]) : 9999;
+}
+
 function toProduct(r: ProdutoRow): Product {
-  const n: NutricaoRow | undefined = Array.isArray(r.produto_nutricao)
-    ? r.produto_nutricao[0]
-    : undefined;
+  const rows = Array.isArray(r.produto_nutricao) ? [...r.produto_nutricao] : [];
+  rows.sort((a, b) => sizeOrder(a.tamanho) - sizeOrder(b.tamanho));
+  const nutritionList = rows.map(toNutrition);
   return {
     name: r.nome,
     slug: r.slug,
     category: r.categoria as ProductCategory,
     image: r.imagem ?? "",
     ingredients: r.ingredientes ?? undefined,
-    nutrition: n
-      ? {
-          porcao: n.porcao ?? undefined,
-          carboidratos: n.carboidratos ?? undefined,
-          proteinas: n.proteinas ?? undefined,
-          gordurasTotais: n.gorduras_totais ?? undefined,
-          gordurasSaturadas: n.gorduras_saturadas ?? undefined,
-          fibras: n.fibras ?? undefined,
-          caloriasKcal: n.calorias_kcal ?? undefined,
-          gordurasTrans: n.gorduras_trans ?? undefined,
-          sodio: n.sodio ?? undefined,
-          caloriasKj: n.calorias_kj ?? undefined,
-        }
-      : undefined,
+    nutrition: nutritionList[0],
+    nutritionList: nutritionList.length ? nutritionList : undefined,
   };
 }
 

@@ -84,6 +84,8 @@ export type ProductCategory =
   | "fornerito";
 
 export type Nutrition = {
+  /** Tamanho da pizza (ex.: "20 cm", "30 cm", "40 cm"). */
+  tamanho?: string;
   porcao?: string;
   carboidratos?: string;
   proteinas?: string;
@@ -104,8 +106,10 @@ export type Product = {
   slug?: string;
   /** Comma-separated ingredients (from the product CSV). */
   ingredients?: string;
-  /** Nutritional table values (from the product CSV). */
+  /** Nutritional table values — primeira tabela (compat). */
   nutrition?: Nutrition;
+  /** Todas as tabelas nutricionais, uma por tamanho. */
+  nutritionList?: Nutrition[];
 };
 
 /** Unique URL slug for a product (falls back to the slugified name). */
