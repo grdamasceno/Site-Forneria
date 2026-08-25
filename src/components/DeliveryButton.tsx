@@ -1,4 +1,4 @@
-const DELIVERY_URL = "https://deliverydireto.com.br/forneria-original";
+const DELIVERY_URL = "https://pedidos.forneriaoriginal.com";
 
 /**
  * Floating delivery button ("#bolinha"): an orange circle that blinks between

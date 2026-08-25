@@ -149,7 +149,7 @@ export default async function ProductPage({ params }: Params) {
             <NutritionTables list={nutritionList} />
 
             <a
-              href="https://deliverydireto.com.br/forneria-original"
+              href="https://pedidos.forneriaoriginal.com"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-8 inline-block rounded-full bg-forneria-red px-8 py-3 font-bold text-white transition hover:bg-forneria-red-dark"
