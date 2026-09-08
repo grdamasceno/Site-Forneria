@@ -30,13 +30,18 @@ export async function saveUnidade(formData: FormData) {
   const numero = v("numero");
   const complemento = v("complemento");
   const bairro = v("bairro");
+  const enderecoManual = v("endereco");
 
-  // Recompose the display address from the granular fields.
-  const endereco = [
+  // Recompose the display address from the granular fields when any of them
+  // is filled in. Otherwise, keep whatever was typed directly into the
+  // "Endereço" field — never silently blank out an existing address just
+  // because the granular breakdown was never migrated for this unit.
+  const enderecoComposto = [
     [logradouro, numero].filter(Boolean).join(", "),
     complemento,
     bairro,
   ].filter(Boolean).join(" - ") || null;
+  const endereco = enderecoComposto ?? enderecoManual;
 
   const row = {
     nome: v("nome"),

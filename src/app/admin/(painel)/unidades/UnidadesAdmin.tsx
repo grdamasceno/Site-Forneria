@@ -12,6 +12,7 @@ export type AdminUnidade = {
   nome: string;
   estado: string | null;
   region_id: string | null;
+  endereco: string | null;
   cep: string | null;
   logradouro: string | null;
   numero: string | null;
@@ -103,6 +104,13 @@ export default function UnidadesAdmin({ unidades, regioes }: { unidades: AdminUn
             <Field label="Nome da unidade">
               <input name="nome" defaultValue={editing.nome ?? ""} required className={inputCls} />
             </Field>
+            <Field label="Endereço (como aparece no site)">
+              <input name="endereco" defaultValue={editing.endereco ?? ""} className={inputCls} />
+            </Field>
+            <p className="text-xs text-forneria-black/50">
+              Detalhamento opcional abaixo — preencha só se quiser estruturar o endereço (uso futuro em SEO).
+              Se algum desses campos for preenchido, o endereço acima é recalculado a partir deles ao salvar.
+            </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field label="CEP"><input name="cep" defaultValue={editing.cep ?? ""} className={inputCls} /></Field>
               <Field label="Logradouro"><input name="logradouro" defaultValue={editing.logradouro ?? ""} className={inputCls} /></Field>
