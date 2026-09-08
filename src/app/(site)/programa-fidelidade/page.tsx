@@ -5,6 +5,9 @@ import RegulationModal from "@/components/RegulationModal";
 
 export const metadata: Metadata = {
   title: "Programa Fidelidade — Forneria Original",
+  description:
+    "Participe do Programa de Fidelidade da Forneria Original: acumule pontos a cada pedido pelo app e troque por brindes e cortesias deliciosas.",
+  alternates: { canonical: "/programa-fidelidade" },
 };
 
 export default function ProgramaFidelidadePage() {

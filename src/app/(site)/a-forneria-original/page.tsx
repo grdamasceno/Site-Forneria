@@ -4,6 +4,9 @@ import ContentSection from "@/components/ContentSection";
 
 export const metadata: Metadata = {
   title: "A Forneria Original",
+  description:
+    "Conheça a história da Forneria Original: rede de franquias de delivery de pizzas artesanais desde 2016, com ingredientes selecionados e o sabor original que você merece.",
+  alternates: { canonical: "/a-forneria-original" },
 };
 
 export default function AForneriaOriginalPage() {

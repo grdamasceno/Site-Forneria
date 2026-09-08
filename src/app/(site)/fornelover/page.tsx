@@ -4,6 +4,9 @@ import HeroBanner from "@/components/HeroBanner";
 
 export const metadata: Metadata = {
   title: "Fornelover — Forneria Original",
+  description:
+    "Fornelover é a comunidade de fãs da Forneria Original. Veja os depoimentos e momentos compartilhados por quem ama nossas pizzas.",
+  alternates: { canonical: "/fornelover" },
 };
 
 type Testimonial = {
@@ -50,6 +53,7 @@ function NetworkIcon({ network }: { network: Testimonial["network"] }) {
       alt={network === "facebook" ? "Comentário no Facebook" : "Curtida no Instagram"}
       width={800}
       height={800}
+      sizes="(max-width: 768px) 256px, 384px"
       className="animate-float mx-auto h-auto w-64 md:w-96"
     />
   );
@@ -67,6 +71,7 @@ export default function ForneloverPage() {
         width={2003}
         height={467}
         priority
+        sizes="100vw"
         className="-mt-1 h-auto w-full"
       />
 
@@ -141,6 +146,7 @@ export default function ForneloverPage() {
                       alt=""
                       width={552}
                       height={545}
+                      sizes="(max-width: 768px) 160px, 224px"
                       className="animate-heart h-auto w-40 md:w-56"
                     />
                   </div>
@@ -158,6 +164,7 @@ export default function ForneloverPage() {
           alt=""
           width={552}
           height={545}
+          sizes="(max-width: 768px) 128px, 176px"
           className="animate-heart relative z-10 ml-6 h-auto w-32 md:w-44"
         />
         <Image
@@ -165,6 +172,7 @@ export default function ForneloverPage() {
           alt=""
           width={2599}
           height={798}
+          sizes="100vw"
           className="-mt-16 h-auto w-full md:-mt-24"
         />
       </section>

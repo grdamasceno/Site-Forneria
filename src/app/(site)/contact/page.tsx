@@ -4,6 +4,9 @@ import ContactForm from "@/components/ContactForm";
 
 export const metadata: Metadata = {
   title: "Contato / SAC — Forneria Original",
+  description:
+    "Fale com a Forneria Original: tire dúvidas, envie elogios, sugestões ou reclamações pelo formulário do SAC ou pelo e-mail sac@forneriaoriginal.com.",
+  alternates: { canonical: "/contact" },
 };
 
 export default function SacPage() {

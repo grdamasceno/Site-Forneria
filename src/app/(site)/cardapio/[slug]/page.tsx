@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ProductCategory } from "@/lib/data";
+import { SITE_URL, type ProductCategory } from "@/lib/data";
 import { getProductBySlug } from "@/lib/queries";
 import NutritionTables from "@/components/NutritionTables";
 
@@ -20,8 +20,18 @@ const CATEGORY_LABEL: Record<ProductCategory, string> = {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
+  if (!product) return { title: "Produto não encontrado" };
+
+  const categoryLabel = CATEGORY_LABEL[product.category] ?? "Pizza";
+  const description = product.ingredients
+    ? `${product.name}: ${product.ingredients}. Peça a pizza ${categoryLabel.toLowerCase()} ${product.name} pelo delivery da Forneria Original.`
+    : `Peça a pizza ${product.name} pelo delivery da Forneria Original — muito recheio e ingredientes selecionados.`;
+
   return {
-    title: product ? `${product.name} — Forneria Original` : "Produto não encontrado",
+    title: `${product.name} — Forneria Original`,
+    description,
+    alternates: { canonical: `/cardapio/${slug}` },
+    openGraph: { images: [{ url: product.image }] },
   };
 }
 
@@ -33,8 +43,23 @@ export default async function ProductPage({ params }: Params) {
   const categoryLabel = CATEGORY_LABEL[product.category] ?? "Pizza";
   const nutritionList = product.nutritionList ?? [];
 
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Cardápio", item: `${SITE_URL}/cardapio` },
+      { "@type": "ListItem", position: 3, name: product.name, item: `${SITE_URL}/cardapio/${slug}` },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       {/* Banner with the floating pizza */}
       <section className="relative w-full overflow-hidden bg-forneria-black">
         <Image

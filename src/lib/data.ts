@@ -10,6 +10,18 @@ export { posts };
 
 export type NavItem = { label: string; href: string; external?: boolean };
 
+// Canonical production domain — used for metadataBase, canonical URLs and
+// absolute URLs in structured data (JSON-LD, sitemap).
+export const SITE_URL = "https://www.forneriaoriginal.com";
+
+/** Resolves an image path to an absolute URL for structured data — images can
+ * be either a local `/img/...` path or an already-absolute Supabase Storage
+ * URL, depending on how they were uploaded. */
+export function absoluteImageUrl(path?: string): string | undefined {
+  if (!path) return undefined;
+  return /^https?:\/\//i.test(path) ? path : `${SITE_URL}${path}`;
+}
+
 export const FRANQUIA_URL = "https://franquia.forneriaoriginal.com/seja-um-franqueado/";
 
 export const navItems: NavItem[] = [

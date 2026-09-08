@@ -25,7 +25,7 @@ export default function Footer() {
           <p className="mt-5 text-sm leading-relaxed text-gray-400">
             A Forneria Original oferece uma experiência única em pizzas desde
             2016, conquistando clientes com receitas inovadoras, sabores
-            exclusivos e MUITO recheio. Atualmente, a rede conta com mais de 54
+            exclusivos e MUITO recheio. Atualmente, a rede conta com mais de 50
             unidades em todo o Brasil e expandiu sua oferta para incluir marcas
             próprias de massas, açaí, hambúrgueres, poke e sobremesas.{" "}
             <Link href="/a-forneria-original" className="text-forneria-red hover:underline">

@@ -3,6 +3,9 @@ import HeroBanner from "@/components/HeroBanner";
 
 export const metadata: Metadata = {
   title: "Termo de Adequação à LGPD — Forneria Original",
+  description:
+    "Termo de Adequação à Lei Geral de Proteção de Dados (LGPD) da Forneria Original Franquias LTDA — como tratamos e protegemos dados pessoais.",
+  alternates: { canonical: "/politica-lgpd" },
 };
 
 export default function PoliticaLgpdPage() {

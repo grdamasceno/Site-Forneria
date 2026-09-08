@@ -3,6 +3,9 @@ import HeroBanner from "@/components/HeroBanner";
 
 export const metadata: Metadata = {
   title: "Política de Cookies — Forneria Original",
+  description:
+    "Entenda como a Forneria Original usa cookies e tecnologias similares para melhorar sua experiência de navegação no site.",
+  alternates: { canonical: "/politica-de-cookie" },
 };
 
 export default function PoliticaCookiePage() {

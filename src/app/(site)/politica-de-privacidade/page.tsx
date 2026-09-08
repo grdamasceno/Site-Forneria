@@ -3,6 +3,9 @@ import HeroBanner from "@/components/HeroBanner";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade — Forneria Original",
+  description:
+    "Saiba como a Forneria Original coleta, usa e protege suas informações pessoais ao navegar e fazer pedidos pelo site.",
+  alternates: { canonical: "/politica-de-privacidade" },
 };
 
 export default function PoliticaPrivacidadePage() {

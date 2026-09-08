@@ -5,6 +5,9 @@ import { getBrands } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Nossas Marcas — Forneria Original",
+  description:
+    "Conheça as marcas da Forneria Original: Condado (burgers), Poke Moon, Rio Roots Açaí, Woodstock (sobremesas) e Forneria Original Massas.",
+  alternates: { canonical: "/marcas" },
 };
 
 export const dynamic = "force-dynamic";

@@ -2,10 +2,23 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import HeroBanner from "@/components/HeroBanner";
+import { SITE_URL } from "@/lib/data";
 import { getPosts } from "@/lib/queries";
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+    { "@type": "ListItem", position: 2, name: "Novidades", item: `${SITE_URL}/novidades` },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "Novidades — Forneria Original",
+  description:
+    "Fique por dentro das novidades, promoções e histórias da Forneria Original: lançamentos de sabores, prêmios e novidades da rede.",
+  alternates: { canonical: "/novidades" },
 };
 
 export const dynamic = "force-dynamic";
@@ -16,6 +29,11 @@ export default async function NovidadesPage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <HeroBanner title="Novidades" />
 
       <div className="container-fc py-10">

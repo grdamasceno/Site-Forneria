@@ -5,6 +5,9 @@ import { getUnits } from "@/lib/queries";
 
 export const metadata: Metadata = {
   title: "Nossas Unidades — Forneria Original",
+  description:
+    "Encontre a unidade Forneria Original mais perto de você: endereços, telefones e horários de funcionamento em mais de 50 cidades do Brasil.",
+  alternates: { canonical: "/unidades" },
 };
 
 export const dynamic = "force-dynamic";

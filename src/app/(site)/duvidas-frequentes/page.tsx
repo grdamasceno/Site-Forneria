@@ -4,6 +4,9 @@ import Accordion, { type AccordionItem } from "@/components/Accordion";
 
 export const metadata: Metadata = {
   title: "Dúvidas Frequentes — Forneria Original",
+  description:
+    "Tire suas dúvidas sobre pedidos, entrega, formas de pagamento, programa de fidelidade e funcionamento das unidades Forneria Original.",
+  alternates: { canonical: "/duvidas-frequentes" },
 };
 
 const faq: AccordionItem[] = [
@@ -55,9 +58,27 @@ const faq: AccordionItem[] = [
   },
 ];
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faq.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer.join(" "),
+    },
+  })),
+};
+
 export default function DuvidasFrequentesPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
       <HeroBanner title="Dúvidas Frequentes" />
       <div className="container-fc max-w-3xl py-12">
         <Accordion items={faq} />

@@ -3,16 +3,43 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import HeroBanner from "@/components/HeroBanner";
+import { absoluteImageUrl, SITE_URL } from "@/lib/data";
 import { getPostBySlug, getPosts } from "@/lib/queries";
 
 type Params = { params: Promise<{ slug: string }> };
 
 export const dynamic = "force-dynamic";
 
+const PT_MONTHS: Record<string, string> = {
+  janeiro: "01", fevereiro: "02", março: "03", abril: "04", maio: "05", junho: "06",
+  julho: "07", agosto: "08", setembro: "09", outubro: "10", novembro: "11", dezembro: "12",
+};
+
+/** Parses "28 de março de 2026" into "2026-03-28" (ISO 8601). Returns undefined if it doesn't match. */
+function toIsoDate(ptDate: string): string | undefined {
+  const m = ptDate.match(/^(\d{1,2}) de (\p{L}+) de (\d{4})$/u);
+  if (!m) return undefined;
+  const month = PT_MONTHS[m[2].toLowerCase()];
+  if (!month) return undefined;
+  return `${m[3]}-${month}-${m[1].padStart(2, "0")}`;
+}
+
+function excerptFrom(text: string): string {
+  const plain = text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  return plain.length > 155 ? `${plain.slice(0, 155)}…` : plain;
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-  return { title: post ? `${post.title} — Forneria Original` : "Novidade" };
+  if (!post) return { title: "Novidade" };
+
+  return {
+    title: `${post.title} — Forneria Original`,
+    description: excerptFrom(post.excerpt || post.text || post.title),
+    alternates: { canonical: `/novidades/${slug}` },
+    openGraph: { type: "article", images: [{ url: post.image }] },
+  };
 }
 
 export default async function PostPage({ params }: Params) {
@@ -30,8 +57,43 @@ export default async function PostPage({ params }: Params) {
   const posts = await getPosts();
   const recent = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
 
+  const isoDate = toIsoDate(post.date);
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    image: post.image ? [absoluteImageUrl(post.image)] : undefined,
+    ...(isoDate && { datePublished: isoDate }),
+    description: excerptFrom(post.excerpt || post.text || post.title),
+    author: { "@type": "Organization", name: "Forneria Original" },
+    publisher: {
+      "@type": "Organization",
+      name: "Forneria Original",
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/img/logo.png` },
+    },
+    mainEntityOfPage: `${SITE_URL}/novidades/${slug}`,
+  };
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Novidades", item: `${SITE_URL}/novidades` },
+      { "@type": "ListItem", position: 3, name: post.title, item: `${SITE_URL}/novidades/${slug}` },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
       <HeroBanner title="Novidades" />
 
       <div className="container-fc py-10">
