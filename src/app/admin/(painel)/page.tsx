@@ -1,5 +1,6 @@
 import ForneriaConfig, { type Email, type Parceiro } from "./ForneriaConfig";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { FRANQUIA_URL } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function AdminForneriaPage() {
     <ForneriaConfig
       sobreNos={conf.sobre_nos ?? ""}
       faturamento={conf.faturamento ?? ""}
+      franquiaUrl={conf.franquia_url || FRANQUIA_URL}
       emails={(emails ?? []) as Email[]}
       parceiros={(parceiros ?? []) as Parceiro[]}
     />

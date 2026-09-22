@@ -1,5 +1,6 @@
 import Image from "next/image";
-import type { Unit } from "@/lib/data";
+import Link from "next/link";
+import { unitSlug, type Unit } from "@/lib/data";
 
 /** Card for a single store location on the Unidades page. */
 export default function UnitCard({ unit }: { unit: Unit }) {
@@ -11,10 +12,11 @@ export default function UnitCard({ unit }: { unit: Unit }) {
     .filter(Boolean)
     .join(", ");
   const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+  const href = `/unidades/${unitSlug(unit)}`;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-md border border-forneria-red/40 bg-white transition hover:shadow-lg">
-      <div className="relative aspect-[3/2] w-full bg-forneria-gray">
+      <Link href={href} className="relative aspect-[3/2] w-full bg-forneria-gray">
         <Image
           src={unit.image}
           alt={unit.name}
@@ -22,10 +24,12 @@ export default function UnitCard({ unit }: { unit: Unit }) {
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover"
         />
-      </div>
+      </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <h3 className="flex items-center gap-2 text-base font-bold text-forneria-black">
-          {unit.name}
+          <Link href={href} className="hover:underline">
+            {unit.name}
+          </Link>
           <a
             href={mapsUrl}
             target="_blank"

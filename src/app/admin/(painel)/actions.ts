@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { createServerSupabase } from "@/lib/supabase/server";
 
 function refresh() {
@@ -14,8 +14,14 @@ export async function saveConfig(formData: FormData) {
   const rows = [
     { chave: "sobre_nos", valor: String(formData.get("sobre_nos") ?? "") },
     { chave: "faturamento", valor: String(formData.get("faturamento") ?? "") },
+    { chave: "franquia_url", valor: String(formData.get("franquia_url") ?? "").trim() },
   ];
   await sb.from("configuracoes").upsert(rows, { onConflict: "chave" });
+  revalidateTag("franquia-url");
+  // O link do franqueado aparece no header/footer (todas as páginas do site
+  // público) e na home (vídeo institucional) -- revalida o layout raiz
+  // inteiro, não só a home.
+  revalidatePath("/", "layout");
   refresh();
 }
 

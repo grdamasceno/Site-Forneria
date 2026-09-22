@@ -8,8 +8,10 @@ import {
   socialLinks,
 } from "@/lib/data";
 
-export default function Footer() {
+export default function Footer({ franquiaUrl }: { franquiaUrl: string }) {
   const currentYear = new Date().getFullYear();
+  const hrefFor = (item: (typeof footerDepartments)[number]) =>
+    item.dynamicHref === "franquia" ? franquiaUrl : item.href;
 
   // Split department links into two columns, as on the original site.
   const half = Math.ceil(footerDepartments.length / 2);
@@ -43,7 +45,7 @@ export default function Footer() {
                 <li key={item.href}>
                   {item.external ? (
                     <a
-                      href={item.href}
+                      href={hrefFor(item)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-gray-400 transition hover:text-[#f66d6d]"
@@ -51,7 +53,7 @@ export default function Footer() {
                       {item.label}
                     </a>
                   ) : (
-                    <Link href={item.href} className="text-sm text-gray-400 transition hover:text-[#f66d6d]">
+                    <Link href={hrefFor(item)} className="text-sm text-gray-400 transition hover:text-[#f66d6d]">
                       {item.label}
                     </Link>
                   )}
@@ -63,7 +65,7 @@ export default function Footer() {
                 <li key={item.href}>
                   {item.external ? (
                     <a
-                      href={item.href}
+                      href={hrefFor(item)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-gray-400 transition hover:text-[#f66d6d]"
@@ -71,7 +73,7 @@ export default function Footer() {
                       {item.label}
                     </a>
                   ) : (
-                    <Link href={item.href} className="text-sm text-gray-400 transition hover:text-[#f66d6d]">
+                    <Link href={hrefFor(item)} className="text-sm text-gray-400 transition hover:text-[#f66d6d]">
                       {item.label}
                     </Link>
                   )}

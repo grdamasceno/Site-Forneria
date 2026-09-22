@@ -20,7 +20,9 @@ const nextConfig = {
       // ---- External redirects carried over from the old (Bubble) site ----
       { source: "/pedido", destination: "https://pedidos.forneriaoriginal.com", permanent: true },
       { source: "/pedidos", destination: "https://pedidos.forneriaoriginal.com", permanent: true },
-      { source: "/sejaumfranqueado", destination: "https://franquia.forneriaoriginal.com/seja-um-franqueado/", permanent: true },
+      // /sejaumfranqueado NOT listed here on purpose: that link is DB-driven
+      // (see src/app/sejaumfranqueado/route.ts) since it changes over time
+      // and a static redirect here can't read from the database.
 
       // ---- Internal renames (keep old paths working) ----
       { source: "/nossas-marcas", destination: "/marcas", permanent: true },

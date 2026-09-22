@@ -7,9 +7,11 @@ import Logo from "./Logo";
 import CityDropdown from "./CityDropdown";
 import { navItems } from "@/lib/data";
 
-export default function Header() {
+export default function Header({ franquiaUrl }: { franquiaUrl: string }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const hrefFor = (item: (typeof navItems)[number]) =>
+    item.dynamicHref === "franquia" ? franquiaUrl : item.href;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white shadow-sm">
@@ -27,14 +29,15 @@ export default function Header() {
         {/* Centered nav (desktop) */}
         <nav className="hidden flex-1 items-center justify-center gap-5 lg:flex">
           {navItems.map((item) => {
-            const active = pathname === item.href;
+            const href = hrefFor(item);
+            const active = pathname === href;
             const className = `nav-link whitespace-nowrap ${active ? "text-forneria-red" : ""}`;
             return item.external ? (
-              <a key={item.href} href={item.href} target="_blank" rel="noopener noreferrer" className={className}>
+              <a key={item.href} href={href} target="_blank" rel="noopener noreferrer" className={className}>
                 {item.label}
               </a>
             ) : (
-              <Link key={item.href} href={item.href} className={className}>
+              <Link key={item.href} href={href} className={className}>
                 {item.label}
               </Link>
             );
@@ -69,14 +72,15 @@ export default function Header() {
         <div className="border-t border-gray-100 bg-white lg:hidden">
           <nav className="container-fc flex flex-col gap-1 py-4">
             {navItems.map((item) => {
-              const active = pathname === item.href;
+              const href = hrefFor(item);
+              const active = pathname === href;
               const className = `rounded-md px-3 py-2 text-sm font-semibold transition hover:bg-forneria-gray ${
                 active ? "text-forneria-red" : "text-forneria-black/80"
               }`;
               return item.external ? (
                 <a
                   key={item.href}
-                  href={item.href}
+                  href={href}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMobileOpen(false)}
@@ -87,7 +91,7 @@ export default function Header() {
               ) : (
                 <Link
                   key={item.href}
-                  href={item.href}
+                  href={href}
                   onClick={() => setMobileOpen(false)}
                   className={className}
                 >

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL, productSlug } from "@/lib/data";
-import { getProducts, getPosts } from "@/lib/queries";
+import { SITE_URL, productSlug, unitSlug } from "@/lib/data";
+import { getProducts, getPosts, getUnits } from "@/lib/queries";
 
 // Static routes that aren't driven by dynamic data.
 const STATIC_ROUTES = [
@@ -21,7 +21,7 @@ const STATIC_ROUTES = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, posts] = await Promise.all([getProducts(), getPosts()]);
+  const [products, posts, units] = await Promise.all([getProducts(), getPosts(), getUnits()]);
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
     url: `${SITE_URL}${path}`,
@@ -44,5 +44,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  return [...staticEntries, ...productEntries, ...postEntries];
+  const unitEntries: MetadataRoute.Sitemap = units.map((u) => ({
+    url: `${SITE_URL}/unidades/${unitSlug(u)}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: 0.6,
+  }));
+
+  return [...staticEntries, ...productEntries, ...postEntries, ...unitEntries];
 }

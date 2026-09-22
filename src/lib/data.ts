@@ -8,7 +8,16 @@ export { products };
 import { posts } from "./posts.data";
 export { posts };
 
-export type NavItem = { label: string; href: string; external?: boolean };
+export type NavItem = {
+  label: string;
+  href: string;
+  external?: boolean;
+  /** Marks an item whose href is overridden at render time by a value
+   * fetched from the `configuracoes` table (see getFranquiaUrl in
+   * queries.ts) instead of the static href below, which only serves as the
+   * fallback default. */
+  dynamicHref?: "franquia";
+};
 
 // Canonical production domain — used for metadataBase, canonical URLs and
 // absolute URLs in structured data (JSON-LD, sitemap).
@@ -22,13 +31,17 @@ export function absoluteImageUrl(path?: string): string | undefined {
   return /^https?:\/\//i.test(path) ? path : `${SITE_URL}${path}`;
 }
 
-export const FRANQUIA_URL = "https://franquia.forneriaoriginal.com/seja-um-franqueado/";
+// Fallback default, used until an admin sets a value in `configuracoes`
+// (chave "franquia_url") or if that lookup fails. The real, current link is
+// DB-driven — see getFranquiaUrl in queries.ts — because this URL has
+// changed more than once and editing code for it every time doesn't scale.
+export const FRANQUIA_URL = "https://invista.forneriaoriginal.com/";
 
 export const navItems: NavItem[] = [
   { label: "A Forneria Original", href: "/a-forneria-original" },
   { label: "Cardápio", href: "/cardapio" },
   { label: "Unidades", href: "/unidades" },
-  { label: "Seja um franqueado", href: FRANQUIA_URL, external: true },
+  { label: "Seja um franqueado", href: FRANQUIA_URL, external: true, dynamicHref: "franquia" },
   { label: "Nossas Marcas", href: "/marcas" },
   { label: "Novidades", href: "/novidades" },
   { label: "Sac", href: "/contact" },
@@ -62,7 +75,7 @@ export const footerDepartments: NavItem[] = [
   { label: "Unidades", href: "/unidades" },
   { label: "SAC", href: "/contact" },
   { label: "Trabalhe Conosco", href: "/trabalhe-conosco" },
-  { label: "Seja um Franqueado", href: FRANQUIA_URL, external: true },
+  { label: "Seja um Franqueado", href: FRANQUIA_URL, external: true, dynamicHref: "franquia" },
   { label: "Nossas Marcas", href: "/marcas" },
   { label: "Novidades", href: "/novidades" },
   { label: "Fornelover", href: "/fornelover" },
@@ -183,6 +196,12 @@ export type Unit = {
   region: string;
   image: string;
 };
+
+/** URL slug for a unit's own page — units have no dedicated slug column, so
+ * this is derived from the name, same approach as productSlug. */
+export function unitSlug(u: Unit): string {
+  return slugify(u.name);
+}
 
 export const unitStates = [
   "Rio de Janeiro",

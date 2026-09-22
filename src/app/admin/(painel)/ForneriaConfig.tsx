@@ -22,11 +22,13 @@ const FORMS: { key: string; label: string }[] = [
 export default function ForneriaConfig({
   sobreNos,
   faturamento,
+  franquiaUrl,
   emails,
   parceiros,
 }: {
   sobreNos: string;
   faturamento: string;
+  franquiaUrl: string;
   emails: Email[];
   parceiros: Parceiro[];
 }) {
@@ -53,6 +55,13 @@ export default function ForneriaConfig({
           <label className="block text-sm">
             <span className="mb-1 block text-forneria-black/70">Faturamento</span>
             <input name="faturamento" defaultValue={faturamento} className={inputCls} />
+          </label>
+          <label className="block text-sm">
+            <span className="mb-1 block text-forneria-black/70">Link &quot;Seja um franqueado&quot;</span>
+            <input name="franquia_url" defaultValue={franquiaUrl} type="url" className={inputCls} />
+            <span className="mt-1 block text-xs text-forneria-black/50">
+              Usado no menu, no rodapé, no vídeo da home e em /sejaumfranqueado. Muda em todo lugar assim que salvar.
+            </span>
           </label>
           <button type="submit" className="rounded-full bg-forneria-red px-6 py-2 font-bold text-white">Salvar</button>
         </form>

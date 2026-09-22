@@ -1,4 +1,4 @@
-import { FRANQUIA_URL } from "@/lib/data";
+import { getFranquiaUrl } from "@/lib/queries";
 
 const YT_ID = "tbyneHduetc";
 
@@ -7,7 +7,8 @@ const YT_ID = "tbyneHduetc";
  * video as the background (autoplay/muted/looped), a dark overlay, a large
  * title and a "Saiba Mais" button linking to the external franchise site.
  */
-export default function FranchiseVideo() {
+export default async function FranchiseVideo() {
+  const franquiaUrl = await getFranquiaUrl();
   return (
     <section className="relative h-[420px] w-full overflow-hidden md:h-[560px]">
       {/* Background video */}
@@ -29,7 +30,7 @@ export default function FranchiseVideo() {
           Seja um Franqueado
         </h2>
         <a
-          href={FRANQUIA_URL}
+          href={franquiaUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-8 rounded-full border-2 border-white px-10 py-3 font-semibold text-white transition hover:bg-white hover:text-forneria-black"

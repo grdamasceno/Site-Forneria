@@ -1,7 +1,27 @@
 // Server-side data access — reads from Supabase (public/anon, governed by RLS).
+import { unstable_cache } from "next/cache";
 import { supabase } from "@/lib/supabase/client";
-import type { Product, Unit, Post, Brand, Banner, ProductCategory } from "@/lib/data";
+import { FRANQUIA_URL, unitSlug, type Product, type Unit, type Post, type Brand, type Banner, type ProductCategory } from "@/lib/data";
 import { ingredientesDisponiveis } from "@/lib/ingredientes";
+
+/**
+ * URL do "Seja um franqueado", vinda da tabela `configuracoes` (chave
+ * "franquia_url"). Cacheada e invalidada sob demanda (tag "franquia-url")
+ * quando o admin salva um novo valor — assim ela não força toda página do
+ * site a virar dinâmica, só a re-busca quando de fato muda.
+ */
+export const getFranquiaUrl = unstable_cache(
+  async (): Promise<string> => {
+    const { data } = await supabase
+      .from("configuracoes")
+      .select("valor")
+      .eq("chave", "franquia_url")
+      .maybeSingle();
+    return data?.valor || FRANQUIA_URL;
+  },
+  ["franquia-url"],
+  { tags: ["franquia-url"], revalidate: 3600 },
+);
 
 /**
  * Ingredientes reutilizáveis. Lê da tabela `ingredientes`; se ela ainda não
@@ -118,6 +138,13 @@ export async function getUnits(): Promise<Unit[]> {
       image: r.imagem ?? "",
     };
   });
+}
+
+/** Units have no dedicated slug column — matches by slugifying the name,
+ * same approach as getPostBySlug. */
+export async function getUnitBySlug(slug: string): Promise<Unit | null> {
+  const units = await getUnits();
+  return units.find((u) => unitSlug(u) === slug) ?? null;
 }
 
 export async function getPosts(): Promise<Post[]> {
