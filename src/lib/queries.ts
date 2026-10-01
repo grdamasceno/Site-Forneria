@@ -3,6 +3,7 @@ import { unstable_cache } from "next/cache";
 import { supabase } from "@/lib/supabase/client";
 import { FRANQUIA_URL, unitSlug, type Product, type Unit, type Post, type Brand, type Banner, type ProductCategory } from "@/lib/data";
 import { ingredientesDisponiveis } from "@/lib/ingredientes";
+import { ptDateToIso } from "@/lib/dates";
 
 /**
  * URL do "Seja um franqueado", vinda da tabela `configuracoes` (chave
@@ -154,7 +155,19 @@ export async function getPosts(): Promise<Post[]> {
     .eq("publicado", true)
     .order("ordem");
   if (error || !data) return [];
-  return data.map((r): Post => ({
+  // "data" is free text typed in the admin (e.g. "16 de setembro de 2026"),
+  // not a real date column, so chronological order has to be computed here
+  // rather than via the query. Posts whose date doesn't parse fall back to
+  // the manual "ordem" field, keeping their relative position.
+  const sorted = [...data].sort((a, b) => {
+    const isoA = a.data ? ptDateToIso(a.data) : undefined;
+    const isoB = b.data ? ptDateToIso(b.data) : undefined;
+    if (isoA && isoB) return isoB.localeCompare(isoA);
+    if (isoA) return -1;
+    if (isoB) return 1;
+    return 0;
+  });
+  return sorted.map((r): Post => ({
     slug: r.slug,
     title: r.titulo,
     date: r.data ?? "",

@@ -5,24 +5,11 @@ import { notFound } from "next/navigation";
 import HeroBanner from "@/components/HeroBanner";
 import { absoluteImageUrl, SITE_URL } from "@/lib/data";
 import { getPostBySlug, getPosts } from "@/lib/queries";
+import { ptDateToIso } from "@/lib/dates";
 
 type Params = { params: Promise<{ slug: string }> };
 
 export const dynamic = "force-dynamic";
-
-const PT_MONTHS: Record<string, string> = {
-  janeiro: "01", fevereiro: "02", março: "03", abril: "04", maio: "05", junho: "06",
-  julho: "07", agosto: "08", setembro: "09", outubro: "10", novembro: "11", dezembro: "12",
-};
-
-/** Parses "28 de março de 2026" into "2026-03-28" (ISO 8601). Returns undefined if it doesn't match. */
-function toIsoDate(ptDate: string): string | undefined {
-  const m = ptDate.match(/^(\d{1,2}) de (\p{L}+) de (\d{4})$/u);
-  if (!m) return undefined;
-  const month = PT_MONTHS[m[2].toLowerCase()];
-  if (!month) return undefined;
-  return `${m[3]}-${month}-${m[1].padStart(2, "0")}`;
-}
 
 function excerptFrom(text: string): string {
   const plain = text.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -57,7 +44,7 @@ export default async function PostPage({ params }: Params) {
   const posts = await getPosts();
   const recent = posts.filter((p) => p.slug !== post.slug).slice(0, 5);
 
-  const isoDate = toIsoDate(post.date);
+  const isoDate = ptDateToIso(post.date);
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
