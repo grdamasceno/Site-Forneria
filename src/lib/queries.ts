@@ -148,8 +148,6 @@ export async function getUnitBySlug(slug: string): Promise<Unit | null> {
   return units.find((u) => unitSlug(u) === slug) ?? null;
 }
 
-type UnidadeIdRow = { id: string };
-
 /** Looks up a unit's row id by slug, for queries keyed on unidade_id
  * (delivery links) rather than on the Unit fields themselves. */
 async function getUnidadeId(slug: string): Promise<string | null> {

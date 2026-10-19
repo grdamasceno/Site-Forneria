@@ -9,6 +9,7 @@ const items = [
   { label: "Cardápio", href: "/admin/cardapio" },
   { label: "Marcas", href: "/admin/marcas" },
   { label: "Unidades", href: "/admin/unidades" },
+  { label: "Links Delivery", href: "/admin/links-delivery" },
   { label: "Novidades", href: "/admin/novidades" },
   { label: "Páginas", href: "/admin/paginas" },
   { label: "Usuários", href: "/admin/usuarios" },
