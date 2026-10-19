@@ -1,7 +1,7 @@
 // Server-side data access — reads from Supabase (public/anon, governed by RLS).
 import { unstable_cache } from "next/cache";
 import { supabase } from "@/lib/supabase/client";
-import { FRANQUIA_URL, unitSlug, type Product, type Unit, type Post, type Brand, type Banner, type ProductCategory } from "@/lib/data";
+import { FRANQUIA_URL, unitSlug, type Product, type Unit, type Post, type Brand, type Banner, type ProductCategory, type DeliveryLink } from "@/lib/data";
 import { ingredientesDisponiveis } from "@/lib/ingredientes";
 import { ptDateToIso } from "@/lib/dates";
 
@@ -146,6 +146,47 @@ export async function getUnits(): Promise<Unit[]> {
 export async function getUnitBySlug(slug: string): Promise<Unit | null> {
   const units = await getUnits();
   return units.find((u) => unitSlug(u) === slug) ?? null;
+}
+
+type UnidadeIdRow = { id: string };
+
+/** Looks up a unit's row id by slug, for queries keyed on unidade_id
+ * (delivery links) rather than on the Unit fields themselves. */
+async function getUnidadeId(slug: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("unidades")
+    .select("id, nome")
+    .eq("ativo", true);
+  if (error || !data) return null;
+  const match = (data as { id: string; nome: string }[]).find(
+    (r) => unitSlug({ name: r.nome } as Unit) === slug,
+  );
+  return match?.id ?? null;
+}
+
+/** Delivery links (iFood, DD, Olga...) for one unit, ordered by the
+ * platform's configured order. A link with no unidade_id never shows up
+ * here — it only exists in the admin's link registry until assigned. */
+export async function getDeliveryLinksByUnitSlug(slug: string): Promise<DeliveryLink[]> {
+  const unidadeId = await getUnidadeId(slug);
+  if (!unidadeId) return [];
+
+  const { data, error } = await supabase
+    .from("delivery_links")
+    .select("url, delivery_plataformas(nome, icone, ordem)")
+    .eq("unidade_id", unidadeId);
+  if (error || !data) return [];
+
+  type Row = { url: string; delivery_plataformas: { nome: string; icone: string | null; ordem: number } | { nome: string; icone: string | null; ordem: number }[] | null };
+  return (data as Row[])
+    .map((r) => {
+      const p = Array.isArray(r.delivery_plataformas) ? r.delivery_plataformas[0] : r.delivery_plataformas;
+      if (!p) return null;
+      return { plataforma: p.nome, icone: p.icone, url: r.url, ordem: p.ordem };
+    })
+    .filter((l): l is DeliveryLink & { ordem: number } => l !== null)
+    .sort((a, b) => a.ordem - b.ordem)
+    .map(({ plataforma, icone, url }) => ({ plataforma, icone, url }));
 }
 
 export async function getPosts(): Promise<Post[]> {

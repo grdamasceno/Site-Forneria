@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getUnitBySlug } from "@/lib/queries";
+import { getUnitBySlug, getDeliveryLinksByUnitSlug } from "@/lib/queries";
 import { absoluteImageUrl, SITE_URL } from "@/lib/data";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -33,6 +33,8 @@ export default async function UnidadePage({ params }: Params) {
   const { slug } = await params;
   const unit = await getUnitBySlug(slug);
   if (!unit) notFound();
+
+  const deliveryLinks = await getDeliveryLinksByUnitSlug(slug);
 
   const hours = unit.hours
     ? unit.hours.split(/[|\n]/).map((h) => h.trim()).filter(Boolean)
@@ -152,14 +154,37 @@ export default async function UnidadePage({ params }: Params) {
             )}
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a
-                href="https://pedidos.forneriaoriginal.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block rounded-full bg-forneria-red px-8 py-3 font-bold text-white transition hover:bg-forneria-red-dark"
-              >
-                Peça pelo delivery
-              </a>
+              {deliveryLinks.length > 0 ? (
+                deliveryLinks.map((link) => (
+                  <a
+                    key={link.plataforma}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-forneria-red px-6 py-3 font-bold text-white transition hover:bg-forneria-red-dark"
+                  >
+                    {link.icone && (
+                      <Image
+                        src={link.icone}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="h-5 w-5 rounded-sm object-contain"
+                      />
+                    )}
+                    Peça pelo {link.plataforma}
+                  </a>
+                ))
+              ) : (
+                <a
+                  href="https://pedidos.forneriaoriginal.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-full bg-forneria-red px-8 py-3 font-bold text-white transition hover:bg-forneria-red-dark"
+                >
+                  Peça pelo delivery
+                </a>
+              )}
               <a
                 href={mapsDirectionsUrl}
                 target="_blank"

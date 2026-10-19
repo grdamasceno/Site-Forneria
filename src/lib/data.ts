@@ -197,6 +197,13 @@ export type Unit = {
   image: string;
 };
 
+/** A unit's delivery link on one platform (iFood, DD, Olga...). */
+export type DeliveryLink = {
+  plataforma: string;
+  icone: string | null;
+  url: string;
+};
+
 /** URL slug for a unit's own page — units have no dedicated slug column, so
  * this is derived from the name, same approach as productSlug. */
 export function unitSlug(u: Unit): string {
